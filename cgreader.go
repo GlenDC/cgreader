@@ -1,7 +1,7 @@
 package cgreader
 
 import (
-    "fmt"
+	"fmt"
 	"io/ioutil"
 	"strings"
 )
