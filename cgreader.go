@@ -9,6 +9,6 @@ import (
 func RunProgram(input string) {
     file, err := ioutil.ReadFile(input)
     if err == nil {
-        fmt.Print(file)
+        fmt.Printf("%s", file)
     }
 }
