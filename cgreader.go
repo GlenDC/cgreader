@@ -52,3 +52,20 @@ func TestOutput(test, out string) bool {
 	}
 	return false
 }
+
+type ProgramMain func(<-chan string) string
+
+func RunAndValidateProgramManual(in string, test string, echo bool, main ProgramMain) {
+	output := main(GetManualInput(in))
+
+	if echo {
+		fmt.Println(output)
+	}
+
+	result := TestOutput(test, output)
+	if result {
+		fmt.Println("Program is correct!")
+	} else {
+		fmt.Println("Program is incorrect!")
+	}
+}
