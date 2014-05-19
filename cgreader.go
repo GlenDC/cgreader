@@ -6,7 +6,24 @@ import (
 	"strings"
 )
 
-func GetInput(in string) (<-chan string, <-chan bool) {
+func GetManualInput(in string) (<-chan string) {
+	ch := make(chan string)
+	go func() {
+		file, err := ioutil.ReadFile(in)
+		if err == nil {
+			lines := strings.Split(string(file), "\n")
+			for _, line := range lines {
+				if line != "" {
+					ch <- line
+				}
+			}
+		}
+		close(ch)
+	}()
+	return ch
+}
+
+func GetFlowInput(in string) (<-chan string, <-chan bool) {
 	ch := make(chan string)
 	ok := make(chan bool)
 	go func() {
@@ -27,11 +44,11 @@ func GetInput(in string) (<-chan string, <-chan bool) {
 	return ch, ok
 }
 
-func TestOutput(out, test string) bool {
-	output, err := ioutil.ReadFile(out)
+func TestOutput(test, out string) bool {
+	file, err := ioutil.ReadFile(test)
 	if err == nil {
-		out = fmt.Sprintf("%s", string(output))
-		return test == out
+		test = fmt.Sprintf("%s", string(file))
+		return out == test
 	}
 	return false
 }
