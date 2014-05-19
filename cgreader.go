@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func RunProgram(in string) (<-chan string, <-chan bool) {
+func GetInput(in string) (<-chan string, <-chan bool) {
 	ch := make(chan string)
 	ok := make(chan bool)
 	go func() {
@@ -27,7 +27,7 @@ func RunProgram(in string) (<-chan string, <-chan bool) {
 	return ch, ok
 }
 
-func TestProgram(out, test string) bool {
+func TestOutput(out, test string) bool {
 	output, err := ioutil.ReadFile(out)
 	if err == nil {
 		out = fmt.Sprintf("%s", string(output))
