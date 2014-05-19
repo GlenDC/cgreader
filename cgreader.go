@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func GetManualInput(in string) (<-chan string) {
+func GetManualInput(in string) <-chan string {
 	ch := make(chan string)
 	go func() {
 		file, err := ioutil.ReadFile(in)
@@ -69,3 +69,6 @@ func RunAndValidateProgramManual(in string, test string, echo bool, main Program
 		fmt.Println("Program is incorrect!")
 	}
 }
+
+// :TODO: Make a similar easy way to excecute flow progams
+//		  + Provide examples
