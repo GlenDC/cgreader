@@ -11,12 +11,14 @@ You can find the source code of the example [here](https://github.com/GlenDC/Cod
 
 It will output the following output:
 
+  ``
   ### 
   #   
   ##  
   #   
   ### 
   Program #1 is correct!
+  ``
 
 # Feedback
 
