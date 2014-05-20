@@ -70,12 +70,12 @@ func RunAndValidateManualProgram(in string, test string, echo bool, main Program
 	}
 }
 
-type Program interface {
+type FlowProgram interface {
 	Update(string)
 	GetOutput() string
 }
 
-func RunAndValidateFlowProgram(in string, test string, echo bool, program Program) {
+func RunAndValidateFlowProgram(in string, test string, echo bool, program FlowProgram) {
 	ch, ok := GetFlowInput(in)
 
 	for <-ok {
