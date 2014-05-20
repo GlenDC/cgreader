@@ -29,7 +29,34 @@ The implementation is quite straightforward and simple. Your offline will be alm
   
 ## Template: flow input program
 
-_TODO_
+  ```
+  package main
+
+  import (
+	  "github.com/glendc/cgreader"                      // cgreader package
+  )
+
+  type Program struct {
+  	// Variables needed in your program logic
+  }
+
+  func (p *Program) Update(input string) {
+  	// Called as long as receiving input
+  }
+
+  func (p *Program) GetOutput() string {
+	  return "<FINAL OUTPUT HERE>"
+  }
+
+  func main() {
+	  cgreader.RunAndValidateFlowProgram(
+		  "<INPUT FILE>",                               // program input
+		  "<TEST FILE>",								// expected output
+		  true,											// show output?
+		  &Program{})									// program
+}
+
+  ```
 
 # Example(s):
 
