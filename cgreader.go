@@ -55,7 +55,7 @@ func TestOutput(test, out string) bool {
 
 type ProgramMain func(<-chan string) string
 
-func RunAndValidateProgramManual(in string, test string, echo bool, main ProgramMain) {
+func RunAndValidateManualProgram(in string, test string, echo bool, main ProgramMain) {
 	output := main(GetManualInput(in))
 
 	if echo {
@@ -70,5 +70,27 @@ func RunAndValidateProgramManual(in string, test string, echo bool, main Program
 	}
 }
 
-// :TODO: Make a similar easy way to excecute flow progams
-//		  + Provide examples
+type Program interface {
+	Update(string)
+	GetOutput() string
+}
+
+func RunAndValidateFlowProgram(in string, test string, echo bool, program Program) {
+	ch, ok := GetFlowInput(in)
+
+	for <-ok {
+		program.Update(<-ch)
+	}
+
+	output := program.GetOutput()
+	if echo {
+		fmt.Println(output)
+	}
+
+	result := TestOutput(test, output)
+	if result {
+		fmt.Println("Program is correct!")
+	} else {
+		fmt.Println("Program is incorrect!")
+	}
+}
