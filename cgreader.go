@@ -55,6 +55,8 @@ func TestOutput(test, out string) bool {
 
 type ProgramMain func(<-chan string) string
 
+type ProgramValidation func(output string) bool
+
 func RunManualProgram(in string, main ProgramMain) {
 	output := main(GetManualInput(in))
 	fmt.Println(output)
@@ -68,6 +70,21 @@ func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 	}
 
 	result := TestOutput(test, output)
+	if result {
+		fmt.Println("Program is correct!")
+	} else {
+		fmt.Println("Program is incorrect!")
+	}
+}
+
+func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, validation ProgramValidation) {
+	output := main(GetManualInput(in))
+
+	if echo {
+		fmt.Println(output)
+	}
+
+	result := validation(output)
 	if result {
 		fmt.Println("Program is correct!")
 	} else {
@@ -104,6 +121,26 @@ func RunAndValidateFlowProgram(in, test string, echo bool, program FlowProgram) 
 	}
 
 	result := TestOutput(test, output)
+	if result {
+		fmt.Println("Program is correct!")
+	} else {
+		fmt.Println("Program is incorrect!")
+	}
+}
+
+func RunAndSelfValidateFlowProgram(in string, echo bool, program FlowProgram, validation ProgramValidation) {
+	ch, ok := GetFlowInput(in)
+
+	for <-ok {
+		program.Update(<-ch)
+	}
+
+	output := program.GetOutput()
+	if echo {
+		fmt.Println(output)
+	}
+
+	result := validation(output)
 	if result {
 		fmt.Println("Program is correct!")
 	} else {
