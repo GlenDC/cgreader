@@ -103,6 +103,40 @@ _TODO: write this example_
           })
   }
   ```
+<<<<<<< HEAD
+=======
+  
+## Template: flow input program
+
+  ```
+  package main
+
+  import (
+	  "github.com/glendc/cgreader"                      // cgreader package
+  )
+
+  type Program struct {
+  	// Variables needed in your program logic
+  }
+
+  func (p *Program) Update(input string) {
+  	// Called as long as receiving input
+  }
+
+  func (p *Program) GetOutput() string {
+	  return "<FINAL OUTPUT HERE>"
+  }
+
+  func main() {
+	  cgreader.RunAndValidateFlowProgram(
+		  "<INPUT FILE>",                               // program input
+		  "<TEST FILE>",								// expected output
+		  true,											// show output?
+		  &Program{})									// program
+}
+
+  ```
+>>>>>>> 892d2c107be0e463249d274242743016ff4299e6
 
 #### Example
 
