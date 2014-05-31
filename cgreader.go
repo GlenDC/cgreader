@@ -57,6 +57,14 @@ type ProgramMain func(<-chan string) string
 
 type ProgramValidation func(output string) bool
 
+func ReportResult(result bool) {
+	if result {
+		fmt.Println("Program is correct!")
+	} else {
+		fmt.Println("Program is incorrect!")
+	}
+}
+
 func RunManualProgram(in string, main ProgramMain) {
 	output := main(GetManualInput(in))
 	fmt.Println(output)
@@ -70,11 +78,7 @@ func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 	}
 
 	result := TestOutput(test, output)
-	if result {
-		fmt.Println("Program is correct!")
-	} else {
-		fmt.Println("Program is incorrect!")
-	}
+	ReportResult(result)
 }
 
 func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, validation ProgramValidation) {
@@ -85,11 +89,7 @@ func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, val
 	}
 
 	result := validation(output)
-	if result {
-		fmt.Println("Program is correct!")
-	} else {
-		fmt.Println("Program is incorrect!")
-	}
+	ReportResult(result)
 }
 
 type FlowProgram interface {
@@ -121,11 +121,7 @@ func RunAndValidateFlowProgram(in, test string, echo bool, program FlowProgram) 
 	}
 
 	result := TestOutput(test, output)
-	if result {
-		fmt.Println("Program is correct!")
-	} else {
-		fmt.Println("Program is incorrect!")
-	}
+	ReportResult(result)
 }
 
 func RunAndSelfValidateFlowProgram(in string, echo bool, program FlowProgram, validation ProgramValidation) {
@@ -141,9 +137,5 @@ func RunAndSelfValidateFlowProgram(in string, echo bool, program FlowProgram, va
 	}
 
 	result := validation(output)
-	if result {
-		fmt.Println("Program is correct!")
-	} else {
-		fmt.Println("Program is incorrect!")
-	}
+	ReportResult(result)
 }
