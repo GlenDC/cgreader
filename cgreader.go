@@ -139,3 +139,36 @@ func RunAndSelfValidateFlowProgram(in string, echo bool, program FlowProgram, va
 	result := validation(output)
 	ReportResult(result)
 }
+
+type TargetProgram interface {
+	ParseInitialData(<-chan string)
+	Update(string) string
+	DoMove(string)
+	LoseConditionCheck() bool
+	WinConditionCheck() bool
+}
+
+func RunTargetProgram(in string, trace bool, program TargetProgram) {
+	ch := GetManualInput(in)
+	program.ParseInitialData(ch)
+
+	for {
+		output := program.Update(<-ch)
+
+		if trace {
+			fmt.Println(output)
+		}
+
+		program.DoMove(output)
+
+		if program.LoseConditionCheck() {
+			ReportResult(false)
+			break
+		}
+
+		if program.WinConditionCheck() {
+			ReportResult(true)
+			break
+		}
+	}
+}
