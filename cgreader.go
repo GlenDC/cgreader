@@ -55,7 +55,12 @@ func TestOutput(test, out string) bool {
 
 type ProgramMain func(<-chan string) string
 
-func RunAndValidateManualProgram(in string, test string, echo bool, main ProgramMain) {
+func RunManualProgram(in string, main ProgramMain) {
+	output := main(GetManualInput(in))
+	fmt.Println(output)
+}
+
+func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 	output := main(GetManualInput(in))
 
 	if echo {
@@ -75,7 +80,18 @@ type FlowProgram interface {
 	GetOutput() string
 }
 
-func RunAndValidateFlowProgram(in string, test string, echo bool, program FlowProgram) {
+func RunFlowProgram(in string, program FlowProgram) {
+	ch, ok := GetFlowInput(in)
+
+	for <-ok {
+		program.Update(<-ch)
+	}
+
+	output := program.GetOutput()
+	fmt.Println(output)
+}
+
+func RunAndValidateFlowProgram(in, test string, echo bool, program FlowProgram) {
 	ch, ok := GetFlowInput(in)
 
 	for <-ok {
