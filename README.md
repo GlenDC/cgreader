@@ -9,34 +9,16 @@ Small Go package to simulate the Codingame programs offline on your computer.
   1. [Types of programs](#types-of-programs)
   1. [Manual Program](#manual-program)
     1. [Run a manual program](#run-a-manual-program)
-      1. Template
-      1. Example
     1. [Run and validate a manual program](#run-and-validate-a-manual-program)
-      1. Template
-      1. Example
     1. [Run and self-validate a manual program](#run-and-self-validate-a-manual-program)
-      1. Template
-      1. Example
   1. [Flow Program](#flow-program)
     1. [Run a flow program](#run-a-flow-program)
-      1. Template
-      1. Example
     1. [Run and validate a flow program](#run-and-validate-a-flow-program)
-      1. Template
-      1. Example
     1. [Run and self-validate a flow program](#run-and-self-validate-a-flow-program)
-      1. Template
-      1. Example
   1. [Target Program](#target-program)
     1. [Run a target program](#run-a-target-program)
-      1. Template
-      1. Example
     1. [Run and validate a target program](#run-and-validate-a-target-program)
-      1. Template
-      1. Example
     1. [Run and self-validate a target program](#run-and-self-validate-a-target-program)
-      1. Template
-      1. Example
 1. [Codingame Offline Code Convertor](#codingame-offline-code-convertor)
   1. [How to use](#how-to-use)
 1. Feedback
@@ -44,7 +26,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
 # Quick Guide
 The implementation is quite straightforward and simple. Your offline will be almost identical as your online codingame code, with the difference being that the input comes via _cgreader_ rather than via _stdin_.
 
-You can find the [descriptions](https://github.com/glendc/CodingGame/desc), [input](https://github.com/glendc/CodingGame/desc) and optionally the [output](https://github.com/glendc/CodingGame/output) text files all [here](https://github.com/glendc/CodingGame) or on [the official Codingame website](http://www.codingame.com). They are also the authors of all these files.
+You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/descriptions), [input](https://github.com/GlenDC/Codingame/tree/master/input) and optionally the [output](https://github.com/GlenDC/Codingame/tree/master/output) text files all [here](https://github.com/glendc/Codingame) or on [the official Codingame website](http://www.codingame.com).
 
 ## Types of programs
 
@@ -103,40 +85,6 @@ _TODO: write this example_
           })
   }
   ```
-<<<<<<< HEAD
-=======
-  
-## Template: flow input program
-
-  ```
-  package main
-
-  import (
-	  "github.com/glendc/cgreader"                      // cgreader package
-  )
-
-  type Program struct {
-  	// Variables needed in your program logic
-  }
-
-  func (p *Program) Update(input string) {
-  	// Called as long as receiving input
-  }
-
-  func (p *Program) GetOutput() string {
-	  return "<FINAL OUTPUT HERE>"
-  }
-
-  func main() {
-	  cgreader.RunAndValidateFlowProgram(
-		  "<INPUT FILE>",                               // program input
-		  "<TEST FILE>",								// expected output
-		  true,											// show output?
-		  &Program{})									// program
-}
-
-  ```
->>>>>>> 892d2c107be0e463249d274242743016ff4299e6
 
 #### Example
 
