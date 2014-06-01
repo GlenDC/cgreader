@@ -16,7 +16,8 @@ Small Go package to simulate the Codingame programs offline on your computer.
     1. [Run and validate a flow program](#run-and-validate-a-flow-program)
     1. [Run and self-validate a flow program](#run-and-self-validate-a-flow-program)
   1. [Target Program](#target-program)
-  1. [How to use](#how-to-use)
+  1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
+  1. [Codingame Offline Code Convertor](#codingame-offline-code-convertor)
 1. Feedback
 
 # Quick Guide
@@ -436,6 +437,54 @@ _TODO: write this example_
     Energy = 0
     
     Program is correct!
+    
+# Challenge map in your terminal
+
+For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md) you might want to have a map, like you would have in [the online Codingame version](http://www.codingame.com). For this you can use the ``cgreader.DrawMap(...)`` function. You can see a working ragnarok solution with map [here](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go), which is based on [this ragnarok template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok_with_map.go).
+
+### Map Example
+
+##### Map after first move:
+
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  T  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  H  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+
+##### Map after last move:
+
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  H  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  .  
+    .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 
 
 # Codingame Offline Code Convertor
 
