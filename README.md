@@ -434,6 +434,8 @@ _TODO: write this example_
     Target = (10,8)
     Thor = (10,8)
     Energy = 0
+    
+    Program is correct!
 
 # Codingame Offline Code Convertor
 
