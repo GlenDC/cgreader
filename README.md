@@ -17,7 +17,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
     1. [Run and self-validate a flow program](#run-and-self-validate-a-flow-program)
   1. [Target Program](#target-program)
   1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
-  1. [Codingame Offline Code Convertor](#codingame-offline-code-convertor)
+  1. [Submit your code online](#submit-your-code-online)
 1. [Feedback](#feedback)
 
 # Quick Guide
@@ -486,25 +486,9 @@ For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingam
     .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  .  
     .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 
 
-# Codingame Offline Code Convertor
+# Submit your code online
 
-You might want to test out your code on [the official Codingame website](http://www.codingame.com). This is possible thanks to the Codingame Offline Code Convertor or _cgocc_ in short. It' a command line utility that:
-
-1. removes all the cgreader specific code
-1. adds all the necacary code in order to work in the online environment
-1. copy the parsed code to your clipboard
-
-_Note: This utility hasn't been developed yet. [Mail me](mailto:contact@glendc.com) for more information about **cgocc**_.
-
-#### How to use
-
-Using the cgocc utility is so easy that it can be summarized in 3 steps:
-
-1. Type and enter in your terminal: ``cgocc [go program]``
-  1. Make sure your code has been formatted with the go fmt utility
-  2. The cgocc utility only works for programs that use the cgreader pkg
-2. Go to the correct challenge to be found on the training page on [the official Codingame website](http://www.codingame.com).
-3. Paste your code & run it!
+You might want to test out your code on [the official Codingame website](http://www.codingame.com). If you know you want this, make sure that you play fair, and don't use any code used in the program logic predefined in one of the template files. This way you'll be able to copy / paste your code in the online environment in no time. As you'll only have change your communication from _channels_ to _stdin/stdout_.
 
 # Feedback
 
