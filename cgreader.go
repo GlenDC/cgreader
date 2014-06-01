@@ -142,9 +142,9 @@ func RunAndSelfValidateFlowProgram(in string, echo bool, program FlowProgram, va
 
 type TargetProgram interface {
 	ParseInitialData(<-chan string)
-	GetInput() <-chan string
+	GetInput() chan string
 	Update(<-chan string) string
-	SetOutput(string)
+	SetOutput(string) string
 	LoseConditionCheck() bool
 	WinConditionCheck() bool
 }
@@ -156,20 +156,19 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 	for {
 		input := program.GetInput()
 		output := program.Update(input)
+		result := program.SetOutput(output)
 
 		if trace {
-			fmt.Println(output)
-		}
-
-		program.SetOutput(output)
-
-		if program.LoseConditionCheck() {
-			ReportResult(false)
-			break
+			fmt.Printf("%s\n%s\n\n", output, result)
 		}
 
 		if program.WinConditionCheck() {
 			ReportResult(true)
+			break
+		}
+
+		if program.LoseConditionCheck() {
+			ReportResult(false)
 			break
 		}
 	}
