@@ -37,9 +37,9 @@ You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/
 1. [Target Program](#target-program): Some challenges are based on win and lose conditions. These are the most complex program and require extra work from the user in order to do these challenges offline, as you'll have to write the logic of the challenge, on top of your usual challenge code. So how does a target program works?
   1. You'll write a struct based on the _TargetProgram_ interface
   1. The initial input will be parsed and have to be manually interpred by you via the _InitialInput_ method.
-  1. The program runs and calls each frame the _Update_ method, which will return your output for that frame
+  1. The program runs and calls each frame the _Update_ method, using the input given via the _GetInput_ method. _Update_ will return your output for that frame
     1. This output can also be traced if wanted.
-  1. Each frame your output will be used and update the game state via the _DoMove_ method
+  1. Each frame your output will be used and update the game state via the _SetOutput_ method
   1. The program exits if the _LoseConditionCheck_- or/and _WinConditionCheck_ method returns true
 
 All programs, except target programs can either:
