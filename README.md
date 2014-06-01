@@ -16,10 +16,6 @@ Small Go package to simulate the Codingame programs offline on your computer.
     1. [Run and validate a flow program](#run-and-validate-a-flow-program)
     1. [Run and self-validate a flow program](#run-and-self-validate-a-flow-program)
   1. [Target Program](#target-program)
-    1. [Run a target program](#run-a-target-program)
-    1. [Run and validate a target program](#run-and-validate-a-target-program)
-    1. [Run and self-validate a target program](#run-and-self-validate-a-target-program)
-1. [Codingame Offline Code Convertor](#codingame-offline-code-convertor)
   1. [How to use](#how-to-use)
 1. Feedback
 
@@ -204,7 +200,7 @@ Suggestions to improve a type of program, or to define a new type of program are
         })
     }
 
-##### Output:### 
+##### Output:
 
     ### 
     #   
@@ -256,37 +252,188 @@ _TODO: write this template_
 
 _TODO: write this example_
 
-## Manual Program
-
-### Run a target program
+## Target Program
 
 #### Template
 
-_TODO: write this template_
+    package main
+
+    import (
+      "github.com/glendc/cgreader"
+    )
+
+    type Program struct {
+      // define a structure, and optionally define member variables
+    }
+
+    func (program *Program) ParseInitialData(ch <-chan string) {
+      // parse the initial data, just like in a manual program
+    }
+
+    func (program *Program) GetInput() (ch chan string) {
+      ch = make(chan string)
+      go func() {
+        // pass the challenge input into the channel
+      }()
+      return
+    }
+
+    func (program *Program) Update(ch <-chan string) string {
+      // your solution logic will be defined here
+      // return an output string, based on the input given via the channel
+    }
+
+    func (program *Program) SetOutput(output string) string {
+      // define challenge logic using the output of the user
+      // return optional trace message
+    }
+
+    func (program *Program) LoseConditionCheck() bool {
+      // return true if user has lost
+    }
+
+    func (program *Program) WinConditionCheck() bool {
+      // return true if user has won
+    }
+
+    func main() {
+      cgreader.RunTargetProgram( // Execute your program offline
+        "program_1.txt", // The challenge input file
+        true,            // Trace output && state?
+        &Program{})      // Create the program && pass it by reference
+    }
 
 #### Example
 
-_TODO: write this example_
+    package main
 
-### Run and validate a target program
+    import (
+      "fmt"
+      "github.com/glendc/cgreader"
+      "strings"
+    )
 
-#### Template
+    type Vector struct {
+      x, y int
+    }
 
-_TODO: write this template_
+    type Ragnarok struct {
+      thor, target, dimensions Vector
+      energy                   int
+    }
 
-#### Example
+    func GetDirection(a, b string, x, y, v int) <-chan string {
+      ch := make(chan string)
+      go func() {
+        difference := x - y
+        switch {
+        case difference < 0:
+          ch <- a
+        case difference > 0:
+          ch <- b
+        default:
+          ch <- ""
+        }
+        close(ch)
+      }()
+      return ch
+    }
 
-_TODO: write this example_
+    func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
+      fmt.Sscanf(
+        <-ch,
+        "%d %d %d %d %d %d %d \n",
+        &ragnarok.dimensions.x,
+        &ragnarok.dimensions.y,
+        &ragnarok.thor.x,
+        &ragnarok.thor.y,
+        &ragnarok.target.x,
+        &ragnarok.target.y,
+        &ragnarok.energy)
+    }
 
-### Run and self-validate a target program
+    func (ragnarok *Ragnarok) GetInput() (ch chan string) {
+      ch = make(chan string)
+      go func() {
+        ch <- fmt.Sprintf("%d", ragnarok.energy)
+      }()
+      return
+    }
 
-#### Template
+    func (ragnarok *Ragnarok) Update(ch <-chan string) string {
+      channel_b := GetDirection("N", "S", ragnarok.target.y, ragnarok.thor.y, ragnarok.thor.y)
+      channel_a := GetDirection("E", "W", ragnarok.thor.x, ragnarok.target.x, ragnarok.thor.x)
 
-_TODO: write this template_
+      result_b := <-channel_b
+      result_a := <-channel_a
 
-#### Example
+      return fmt.Sprint(result_b + result_a)
+    }
 
-_TODO: write this example_
+    func (ragnarok *Ragnarok) SetOutput(output string) string {
+      if strings.Contains(output, "N") {
+        ragnarok.thor.y -= 1
+      } else if strings.Contains(output, "S") {
+        ragnarok.thor.y += 1
+      }
+
+      if strings.Contains(output, "E") {
+        ragnarok.thor.x += 1
+      } else if strings.Contains(output, "W") {
+        ragnarok.thor.x -= 1
+      }
+
+      ragnarok.energy -= 1
+
+      return fmt.Sprintf(
+        "Target = (%d,%d)\nThor = (%d,%d)\nEnergy = %d",
+        ragnarok.target.x,
+        ragnarok.target.y,
+        ragnarok.thor.x,
+        ragnarok.thor.y,
+        ragnarok.energy)
+    }
+
+    func (ragnarok *Ragnarok) LoseConditionCheck() bool {
+      if ragnarok.energy <= 0 {
+        return true
+      }
+
+      x, y := ragnarok.thor.x, ragnarok.thor.y
+      dx, dy := ragnarok.dimensions.x, ragnarok.dimensions.y
+
+      if x < 0 || x >= dx || y < 0 || y >= dy {
+        return true
+      }
+
+      return false
+    }
+
+    func (ragnarok *Ragnarok) WinConditionCheck() bool {
+      return ragnarok.target == ragnarok.thor
+    }
+
+    func main() {
+      cgreader.RunTargetProgram("../../input/ragnarok_1.txt", true, &Ragnarok{})
+    }
+
+
+##### Output:
+
+    E
+    Target = (10,8)
+    Thor = (8,8)
+    Energy = 2
+
+    E
+    Target = (10,8)
+    Thor = (9,8)
+    Energy = 1
+
+    E
+    Target = (10,8)
+    Thor = (10,8)
+    Energy = 0
 
 # Codingame Offline Code Convertor
 
@@ -296,7 +443,9 @@ You might want to test out your code on [the official Codingame website](http://
 1. adds all the necacary code in order to work in the online environment
 1. copy the parsed code to your clipboard
 
-## How to use
+_Note: This utility hasn't been developed yet. [Mail me](mailto:contact@glendc.com) for more information about **cgocc**_.
+
+#### How to use
 
 Using the cgocc utility is so easy that it can be summarized in 3 steps:
 
