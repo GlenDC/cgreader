@@ -60,49 +60,159 @@ Suggestions to improve a type of program, or to define a new type of program are
 
 #### Template
 
-_TODO: write this template_
+    package main
+
+    import (
+      "github.com/glendc/cgreader"                      // cgreader package
+    )
+
+    func main() {
+      cgreader.RunManualProgram(
+          "<INPUT TEXT FILE>",                          // program input
+          func(ch <-chan string) string {               // program main
+              return "<YOUR FINAL OUTPUT HERE>"         // program output
+      })
+    }
 
 #### Example
 
-_TODO: write this example_
+    package main
+
+    import (
+      "fmt"
+      "github.com/glendc/cgreader"
+      "strings"
+    )
+
+    func main() {
+      cgreader.RunManualProgram(
+        "../../input/ascii_1.txt",
+        func(ch <-chan string) string {
+          var width, height int
+          var text string
+
+          fmt.Sscanln(<-ch, &width)
+          fmt.Sscanln(<-ch, &height)
+          fmt.Sscanln(<-ch, &text)
+
+          text = strings.ToUpper(text)
+
+          ascii := make([]string, height)
+          for i := 0; i < height; i++ {
+            ascii[i] = <-ch
+          }
+
+          output := make([]string, height)
+          for _, char := range text {
+            character := int(char) - 65
+            if character < 0 || character > 26 {
+              character = 26
+            }
+            for i := range output {
+              position := character * width
+              output[i] += ascii[i][position : position+width]
+            }
+          }
+
+          var program_output string
+
+          for _, line := range output {
+            program_output += line + "\n"
+          }
+
+          return program_output
+        })
+    }
+
+##### Output:
+
+    ### 
+    #   
+    ##  
+    #   
+    ### 
 
 ### Run and validate a manual program
 
 #### Template
 
-  ```
-  package main
+    package main
 
-  import (
-      "github.com/glendc/cgreader"                      // cgreader package
-  )
+    import (
+        "github.com/glendc/cgreader"                      // cgreader package
+    )
 
-  func main() {
-      cgreader.RunAndValidateProgramManual(
-          "<INPUT TEXT FILE>",                          // program input
-          "<OUTPUT TEXT FILE>",                         // expected output
-          true,                                         // show output?
-          func(ch <-chan string) string {               // program main
-              return "<YOUR FINAL OUTPUT HERE>"         // program output
-          })
-  }
-  ```
+    func main() {
+        cgreader.RunAndValidateProgramManual(
+            "<INPUT TEXT FILE>",                          // program input
+            "<OUTPUT TEXT FILE>",                         // expected output
+            true,                                         // show output?
+            func(ch <-chan string) string {               // program main
+                return "<YOUR FINAL OUTPUT HERE>"         // program output
+            })
+    }
 
 #### Example
 
-You can find the source code of the example [here](https://github.com/GlenDC/CodingGame/blob/master/go/ascii_art.go).
+    package main
 
-It will output the following output:
+    import (
+      "fmt"
+      "github.com/glendc/cgreader"
+      "strings"
+    )
 
-  ```
-  ### 
-  #   
-  ##  
-  #   
-  ### 
-  
-  Program is correct!
-  ```
+    func main() {
+      cgreader.RunAndValidateManualProgram(
+        "../input/ascii_1.txt",
+        "../output/ascii_1.txt",
+        true,
+        func(ch <-chan string) string {
+          var width, height int
+          var text string
+
+          fmt.Sscanln(<-ch, &width)
+          fmt.Sscanln(<-ch, &height)
+          fmt.Sscanln(<-ch, &text)
+
+          text = strings.ToUpper(text)
+
+          ascii := make([]string, height)
+          for i := 0; i < height; i++ {
+            ascii[i] = <-ch
+          }
+
+          output := make([]string, height)
+          for _, char := range text {
+            character := int(char) - 65
+            if character < 0 || character > 26 {
+              character = 26
+            }
+            for i := range output {
+              position := character * width
+              output[i] += ascii[i][position : position+width]
+            }
+          }
+
+          var program_output string
+
+          for _, line := range output {
+            program_output += line + "\n"
+          }
+
+          return program_output
+        })
+    }
+
+##### Output:### 
+
+    ### 
+    #   
+    ##  
+    #   
+    ### 
+
+    Program is correct!
 
 ### Run and self-validate a manual program
 
