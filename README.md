@@ -18,7 +18,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
   1. [Target Program](#target-program)
   1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
   1. [Codingame Offline Code Convertor](#codingame-offline-code-convertor)
-1. Feedback
+1. [Feedback](#feedback)
 
 # Quick Guide
 The implementation is quite straightforward and simple. Your offline will be almost identical as your online codingame code, with the difference being that the input comes via _cgreader_ rather than via _stdin_.
