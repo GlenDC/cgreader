@@ -30,7 +30,7 @@ You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/
 
 ## Types of programs
 
-[Codingame](http://www.codingame.com) has a lot challenges. These challenges can be deviced in types of programs based on how they receive input and what the goal of the challenge is.
+[Codingame](http://www.codingame.com) has a lot challenges. These challenges can be devided in types of programs based on how they receive input and what the goal of the challenge is.
 
 1. [Manual Program](#manual-program): This is the most simple program and just requires you to write a simple _main_ function that takes a _string channel_ as its input. This channel will give you the input line by line and it's up to you how to interpret the received input. The output of the program has to be returned at the end of this method.
 1. [Flow Program](#flow-program): This program is quite similar to a manual program. The biggest difference is that you'll have to define a struct which has two methods. Each frame the _Update_ method will be called, receiving a line of input. At the end of the program the output will be asked via the _GetOutput_ method.
@@ -42,13 +42,15 @@ You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/
   1. Each frame your output will be used and update the game state via the _DoMove_ method
   1. The program exits if the _LoseConditionCheck_- or/and _WinConditionCheck_ method returns true
 
-All programs, except target programs can be either:
+All programs, except target programs can either:
 
 1. run the program
 1. run and validate the program based on a test text file
 1. run and validate the program based on a validation lambda
 
 With all three options you can also echo your final output if wanted.
+
+You can find template for bigger (target) programs [here](https://github.com/GlenDC/Codingame/tree/master/templates/go), to allow you to just concentrate on the challenge(s) and not distract you too much with the program logic itself. Feel free to add templates yourself or improve existing ones via a pull request on that repository.
 
 Suggestions to improve a type of program, or to define a new type of program are welcome and can be filed as an issue or a pull request.
 
