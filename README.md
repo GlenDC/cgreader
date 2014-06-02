@@ -16,8 +16,11 @@ Small Go package to simulate the Codingame programs offline on your computer.
     1. [Run and validate a flow program](#run-and-validate-a-flow-program)
     1. [Run and self-validate a flow program](#run-and-self-validate-a-flow-program)
   1. [Target Program](#target-program)
+    1. [Predefined Target Challenges](#predefined-target-challenges)
+      1. [Ragnarok Example](#ragnarok-example)
+      1. [List of Predefined Challenges](#list-of-predefined-challenges)
+    1. [Template and Example](#template-and-example)
   1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
-  1. [Submit your code online](#submit-your-code-online)
 1. [Feedback](#feedback)
 
 # Quick Guide
@@ -47,7 +50,7 @@ All programs, except target programs can either:
 
 With all three options you can also echo your final output if wanted.
 
-You can find template for bigger (target) programs [here](https://github.com/GlenDC/Codingame/tree/master/templates/go), to allow you to just concentrate on the challenge(s) and not distract you too much with the program logic itself. Feel free to add templates yourself or improve existing ones via a pull request on that repository.
+**Target Programs shouldn't be used as a user, instead use the correct [Predefined Challenge Program](#list-of-predefined-challenges)!**
 
 Suggestions to improve a type of program, or to define a new type of program are welcome and can be filed as an issue or a pull request.
 
@@ -255,6 +258,91 @@ _TODO: write this example_
 
 ## Target Program
 
+### Predefined Target Challenges
+
+The target program challenge type was created to allow you to play more complex challenges, such as Ragnarok, offline. However with target programs you still need to program the Challenge and AI logic yourself, which isn't the goal of the Codingame challenges at all. [The Predefined Target Challenges](#list-of-predefined-challenges) allow you to start on the challenge instantly and it keeps your code base exactly the same as if it were an online submission. 
+
+#### How to convert your offline PT solution code to use online?
+
+There is no real reason why you would want to convert your offline PT challenge code, but let's say you want to do so. It's possible and easy, as your code base will remain quite similar.
+
+Let's say we have the follow _psuedo_ offline [Ragnarok](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md) PT solution code:
+
+    package man
+    
+    import (
+      "github.com/glendc/cgreader"
+      // packages...
+    )
+    
+    // definition of functions, types and variables...
+    
+    func Initialize(ch <-chan string) {
+      // parse the initial input, no output expected...
+    }
+    
+    func Update(ch <-chan string) string {
+      // the code of your solution logic will be defined here...
+      // return "output"
+    }
+    
+    func main() {
+      cgreader.RunRagnarok("ragnarok_1.txt", true, Initialize, Update)
+    }
+    
+After your converted this code **manually**, you will end up with the following online version:
+
+    package main
+    
+    import (
+       // packages...
+    )
+    
+    // definition of functions, types and variables...
+    
+    func main() {
+      // parse the initial input, no output expected...
+      
+      for {
+        // the code of your solution logic will be defined here...
+        fmt.Print("output")
+      }
+    }
+    
+As you can see it's quite similar. On top of this you'll have to convert code that makes use of the channel input parameter, to use the standard input instead. (e.g. ``fmt.Sscanf(<-ch`` to ``fmt.Scanf(``)
+
+#### Ragnarok Example
+
+You can find my ragnarok solution code [here](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go). Thanks to all [the predefined Ragnarok logic](https://github.com/GlenDC/cgreader/blob/master/ragnarok.go), I can simply run the program via the ``cgreader.RunRagnarok`` function, which makes use of the default way to run a Target Program defined [here](https://github.com/GlenDC/cgreader/blob/master/cgreader.go). All this results in a clean and good looking solution. 
+
+#### List of Predefined Challenges
+
+_You can find templates for all [the ready-to-use challenges](#ready-to-use-challenges) [here](https://github.com/GlenDC/Codingame/tree/master/templates/go), this will allow you to solve the challenge straight away!_
+
+##### ready-to-use challenges:
+
+* **Power of Thor**: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go)
+* **Thor Vs. Giants**: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok_giants.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok_giants.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok_giants.go)
+
+##### challenges to be developed:
+
+* Skynet Final - Level 1
+* Skynet - The Chasm
+* Kirk's Quest - The descent
+* Mars Lander - Level 1
+* Indiana - Level 1
+* Mars Lander - Level 2
+* Skynet Finale - Level 2
+* Skynet - The Bridge
+* Kirk's Quest - The labyrinth
+* Indiana - Level 2
+* Indiana - Level 3
+* Mars Lander - Level 3
+
+_Contributions on the "reverse engineering" of these challenges are more than welcome!_
+
+### Template and Example
+
 #### Template
 
     package main
@@ -442,7 +530,7 @@ _TODO: write this example_
 
 For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md) you might want to have a map, like you would have in [the online Codingame version](http://www.codingame.com). For this you can use the ``cgreader.DrawMap(...)`` function. You can see a working ragnarok solution with map [here](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go), which is based on [this ragnarok template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok_with_map.go).
 
-### Map Example
+### Ragnarok Map Example
 
 ##### Map after first move:
 
@@ -485,10 +573,6 @@ For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingam
     .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  
     .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  .  
     .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 
-
-# Submit your code online
-
-You might want to test out your code on [the official Codingame website](http://www.codingame.com). If you know you want this, make sure that you play fair, and don't use any code used in the program logic predefined in one of the template files. This way you'll be able to copy / paste your code in the online environment in no time. As you'll only have change your communication from _channels_ to _stdin/stdout_.
 
 # Feedback
 
