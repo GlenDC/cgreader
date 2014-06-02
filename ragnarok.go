@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-type UserInitializeFunction func(string)
-type UserUpdateFunction func(string) string
+type UserInitializeFunction func(<-chan string)
+type UserUpdateFunction func(<-chan string) string
 
 type Vector struct {
 	x, y int
@@ -27,6 +27,7 @@ type Ragnarok struct {
 	trail                    []Vector
 	UserInitialize           UserInitializeFunction
 	UserUpdate               UserUpdateFunction
+	trace                    bool
 }
 
 func GetDirection(x, y int) <-chan int {
@@ -69,13 +70,15 @@ func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
 		&ragnarok.target.y,
 		&ragnarok.energy)
 
-	output := fmt.Sprintf(
-		"%d %d %d %d",
-		ragnarok.target.x,
-		ragnarok.target.y,
-		ragnarok.thor.x,
-		ragnarok.thor.y)
-
+	output := make(chan string)
+	go func() {
+		output <- fmt.Sprintf(
+			"%d %d %d %d",
+			ragnarok.target.x,
+			ragnarok.target.y,
+			ragnarok.thor.x,
+			ragnarok.thor.y)
+	}()
 	ragnarok.UserInitialize(output)
 
 	ragnarok.thor.icon, ragnarok.target.icon = "H", "T"
@@ -90,7 +93,7 @@ func (ragnarok *Ragnarok) GetInput() (ch chan string) {
 }
 
 func (ragnarok *Ragnarok) Update(ch <-chan string) string {
-	return ragnarok.UserUpdate(<-ch)
+	return ragnarok.UserUpdate(ch)
 }
 
 func (ragnarok *Ragnarok) SetOutput(output string) string {
@@ -110,26 +113,30 @@ func (ragnarok *Ragnarok) SetOutput(output string) string {
 
 	ragnarok.energy -= 1
 
-	trail := append(ragnarok.trail, ragnarok.thor, ragnarok.target)
+	if ragnarok.trace {
+		trail := append(ragnarok.trail, ragnarok.thor, ragnarok.target)
 
-	map_info := make([]MapObject, len(trail))
-	for i, v := range trail {
-		map_info[i] = MapObject(v)
+		map_info := make([]MapObject, len(trail))
+		for i, v := range trail {
+			map_info[i] = MapObject(v)
+		}
+
+		DrawMap(
+			ragnarok.dimensions.x,
+			ragnarok.dimensions.y,
+			".",
+			map_info...)
+
+		return fmt.Sprintf(
+			"Target = (%d,%d)\nThor = (%d,%d)\nEnergy = %d",
+			ragnarok.target.x,
+			ragnarok.target.y,
+			ragnarok.thor.x,
+			ragnarok.thor.y,
+			ragnarok.energy)
 	}
 
-	DrawMap(
-		ragnarok.dimensions.x,
-		ragnarok.dimensions.y,
-		".",
-		map_info...)
-
-	return fmt.Sprintf(
-		"Target = (%d,%d)\nThor = (%d,%d)\nEnergy = %d",
-		ragnarok.target.x,
-		ragnarok.target.y,
-		ragnarok.thor.x,
-		ragnarok.thor.y,
-		ragnarok.energy)
+	return ""
 }
 
 func (ragnarok *Ragnarok) LoseConditionCheck() bool {
@@ -156,6 +163,7 @@ func RunRagnarok(input string, trace bool, initialize UserInitializeFunction, up
 	ragnarok := Ragnarok{}
 	ragnarok.UserInitialize = initialize
 	ragnarok.UserUpdate = update
+	ragnarok.trace = trace
 
 	RunTargetProgram(input, trace, &ragnarok)
 }
