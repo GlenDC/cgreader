@@ -191,7 +191,7 @@ func DrawMap(width, height int, background string, objects ...MapObject) {
 					break
 				}
 			}
-			fmt.Printf("%s  ", c)
+			fmt.Printf("%s ", c)
 		}
 		fmt.Println("")
 	}
