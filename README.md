@@ -528,7 +528,7 @@ _Contributions on the "reverse engineering" of these challenges are more than we
     
 # Challenge map in your terminal
 
-For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md) you might want to have a map, like you would have in [the online Codingame version](http://www.codingame.com). For this you can use the ``cgreader.DrawMap(...)`` function. You can see a working ragnarok solution with map [here](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go), which is based on [this ragnarok template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok_with_map.go).
+For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md) you might want to have a map, like you would have in [the online Codingame version](http://www.codingame.com). For this you can use the ``cgreader.DrawMap(...)`` function. You can see a working ragnarok solution with map [here](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go).
 
 ### Ragnarok Map Example
 
