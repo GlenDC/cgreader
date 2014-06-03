@@ -66,9 +66,9 @@ func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
 		&ragnarok.dimensions.y,
 		&ragnarok.thor.x,
 		&ragnarok.thor.y,
+		&ragnarok.energy,
 		&ragnarok.target.x,
-		&ragnarok.target.y,
-		&ragnarok.energy)
+		&ragnarok.target.y)
 
 	output := make(chan string)
 	go func() {
