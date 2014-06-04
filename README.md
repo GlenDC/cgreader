@@ -11,10 +11,6 @@ Small Go package to simulate the Codingame programs offline on your computer.
     1. [Run a manual program](#run-a-manual-program)
     1. [Run and validate a manual program](#run-and-validate-a-manual-program)
     1. [Run and self-validate a manual program](#run-and-self-validate-a-manual-program)
-  1. [Flow Program](#flow-program)
-    1. [Run a flow program](#run-a-flow-program)
-    1. [Run and validate a flow program](#run-and-validate-a-flow-program)
-    1. [Run and self-validate a flow program](#run-and-self-validate-a-flow-program)
   1. [Target Program](#target-program)
     1. [Predefined Target Challenges](#predefined-target-challenges)
       1. [Ragnarok Example](#ragnarok-example)
@@ -33,7 +29,6 @@ You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/
 [Codingame](http://www.codingame.com) has a lot challenges. These challenges can be devided in types of programs based on how they receive input and what the goal of the challenge is.
 
 1. [Manual Program](#manual-program): This is the most simple program and just requires you to write a simple _main_ function that takes a _string channel_ as its input. This channel will give you the input line by line and it's up to you how to interpret the received input. The output of the program has to be returned at the end of this method.
-1. [Flow Program](#flow-program): This program is quite similar to a manual program. The biggest difference is that you'll have to define a struct which has two methods. Each frame the _Update_ method will be called, receiving a line of input. At the end of the program the output will be asked via the _GetOutput_ method.
 1. [Target Program](#target-program): Some challenges are based on win and lose conditions. These are the most complex program and require extra work from the user in order to do these challenges offline, as you'll have to write the logic of the challenge, on top of your usual challenge code. So how does a target program works?
   1. You'll write a struct based on the _TargetProgram_ interface
   1. The initial input will be parsed and have to be manually interpred by you via the _InitialInput_ method.
@@ -215,38 +210,6 @@ Suggestions to improve a type of program, or to define a new type of program are
     Program is correct!
 
 ### Run and self-validate a manual program
-
-#### Template
-
-_TODO: write this template_
-
-#### Example
-
-_TODO: write this example_
-
-## Flow Program
-
-### Run a flow program
-
-#### Template
-
-_TODO: write this template_
-
-#### Example
-
-_TODO: write this example_
-
-### Run and validate a flow program
-
-#### Template
-
-_TODO: write this template_
-
-#### Example
-
-_TODO: write this example_
-
-### Run and self-validate a flow program
 
 #### Template
 
