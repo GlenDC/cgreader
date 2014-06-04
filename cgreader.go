@@ -7,30 +7,33 @@ import (
 	"time"
 )
 
+const buffer = 8192
+
 func GetManualInput(in string) <-chan string {
-	ch := make(chan string)
-	go func() {
-		file, err := ioutil.ReadFile(in)
-		if err == nil {
-			lines := strings.Split(string(file), "\n")
+	ch := make(chan string, buffer)
+	file, err := ioutil.ReadFile(in)
+	if err == nil {
+		lines := strings.Split(string(file), "\n")
+		go func() {
 			for _, line := range lines {
 				if line != "" {
 					ch <- line
 				}
 			}
-		}
+			close(ch)
+		}()
+	} else {
 		close(ch)
-	}()
+	}
 	return ch
 }
 
 func GetFlowInput(in string) (<-chan string, <-chan bool) {
-	ch := make(chan string)
-	ok := make(chan bool)
-	go func() {
-		file, err := ioutil.ReadFile(in)
-		if err == nil {
-			lines := strings.Split(string(file), "\n")
+	ch, ok := make(chan string, buffer), make(chan bool)
+	file, err := ioutil.ReadFile(in)
+	if err == nil {
+		lines := strings.Split(string(file), "\n")
+		go func() {
 			for _, line := range lines {
 				if line != "" {
 					ok <- true
@@ -38,10 +41,13 @@ func GetFlowInput(in string) (<-chan string, <-chan bool) {
 				}
 			}
 			ok <- false
-		}
+			close(ch)
+			close(ok)
+		}()
+	} else {
 		close(ch)
 		close(ok)
-	}()
+	}
 	return ch, ok
 }
 
