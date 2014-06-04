@@ -17,7 +17,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
       1. [List of Predefined Challenges](#list-of-predefined-challenges)
     1. [Template and Example](#template-and-example)
   1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
-  1. [Challenge timeout](#challenge-timout)
+  1. [Challenge timeout](#challenge-timeout)
 1. [Feedback](#feedback)
 
 # Quick Guide
