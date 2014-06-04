@@ -28,29 +28,6 @@ func GetManualInput(in string) <-chan string {
 	return ch
 }
 
-func GetFlowInput(in string) (<-chan string, <-chan bool) {
-	ch, ok := make(chan string, buffer), make(chan bool)
-	file, err := ioutil.ReadFile(in)
-	if err == nil {
-		lines := strings.Split(string(file), "\n")
-		go func() {
-			for _, line := range lines {
-				if line != "" {
-					ok <- true
-					ch <- line
-				}
-			}
-			ok <- false
-			close(ch)
-			close(ok)
-		}()
-	} else {
-		close(ch)
-		close(ok)
-	}
-	return ch, ok
-}
-
 func TestOutput(test, out string) bool {
 	file, err := ioutil.ReadFile(test)
 	if err == nil {
