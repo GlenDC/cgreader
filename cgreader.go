@@ -75,9 +75,66 @@ func SetTimeout(f float64) {
 func CheckProgramConditions(t time.Time) (s float64) {
 	duration := time.Since(t)
 	if s = duration.Seconds(); s > timeout {
-		fmt.Printf("Your program is incorrect, due to the 1s timeout limit: %fs\n", s)
+		fmt.Printf("Your program timed out after %fs! :(\n", timeout)
 	}
 	return
+}
+
+type Function func()
+type Execute func() string
+type Report func(string, float64)
+
+type ProgramInformation struct {
+	time   float64
+	output string
+}
+
+func RunFunction(function Function) (result bool) {
+	ch := make(chan struct{})
+	start := time.Now()
+	go func() {
+		function()
+		close(ch)
+	}()
+
+	for {
+		select {
+		case <-ch:
+			result = true
+			return
+		default:
+			if CheckProgramConditions(start) > timeout {
+				result = false
+				return
+			}
+		}
+	}
+}
+
+func RunProgram(execute Execute, report Report) (result bool) {
+	ch := make(chan ProgramInformation)
+
+	start := time.Now()
+	go func() {
+		output := execute()
+		ch <- ProgramInformation{time.Since(start).Seconds(), output}
+		close(ch)
+	}()
+
+	var info ProgramInformation
+	for {
+		select {
+		case info = <-ch:
+			report(info.output, info.time)
+			result = true
+			return
+		default:
+			if CheckProgramConditions(start) > timeout {
+				result = false
+				return
+			}
+		}
+	}
 }
 
 func RunManualProgram(in string, main ProgramMain) {
@@ -93,18 +150,16 @@ func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 
 func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, validation ProgramValidation) {
 	input := GetManualInput(in)
-
-	start := time.Now()
-	output := main(input)
-
-	if t := CheckProgramConditions(start); t <= timeout {
+	RunProgram(func() string {
+		return main(input)
+	}, func(output string, time float64) {
 		if echo {
 			fmt.Println(output)
 		}
 
 		result := validation(output)
-		ReportResult(result, t)
-	}
+		ReportResult(result, time)
+	})
 }
 
 type TargetProgram interface {
@@ -119,27 +174,30 @@ type TargetProgram interface {
 func RunTargetProgram(in string, trace bool, program TargetProgram) {
 	ch := GetManualInput(in)
 
-	start := time.Now()
-	program.ParseInitialData(ch)
-
-	for {
-		if t := CheckProgramConditions(start); t <= timeout {
+	if RunFunction(func() { program.ParseInitialData(ch) }) {
+		var duration float64
+		for active := true; active; {
 			input := program.GetInput()
-			output := program.Update(input)
-			result := program.SetOutput(output)
+			if RunProgram(func() string {
+				return program.Update(input)
+			}, func(output string, time float64) {
+				result := program.SetOutput(output)
 
-			if trace {
-				fmt.Printf("%s\n%s\n\n", output, result)
-			}
+				if trace {
+					fmt.Printf("%s\n%s\n\n", output, result)
+				}
 
-			if program.WinConditionCheck() {
-				ReportResult(true, t)
-				break
-			}
+				duration += time
 
-			if program.LoseConditionCheck() {
-				ReportResult(false, t)
-				break
+				if program.WinConditionCheck() {
+					ReportResult(true, duration)
+					active = false
+				} else if program.LoseConditionCheck() {
+					ReportResult(false, duration)
+					active = false
+				}
+			}) == false {
+				return
 			}
 		}
 	}
