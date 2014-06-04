@@ -17,6 +17,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
       1. [List of Predefined Challenges](#list-of-predefined-challenges)
     1. [Template and Example](#template-and-example)
   1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
+  1. [Challenge timeout](#challenge-timout)
 1. [Feedback](#feedback)
 
 # Quick Guide
@@ -536,6 +537,14 @@ For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingam
     .  .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  
     .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  .  
     .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 
+    
+# Challenge timeout
+
+Challenges are considered and reported as invalid, when they take longer than _1 second_, the default timeout value. This value can be set to a custom value with the ``SetTimeout`` function, in case a challenge requires a different value.
+
+An example:
+
+    cgreader.SetTimeout(42.0) // the challenge timeout is now 42 seconds
 
 # Feedback
 
