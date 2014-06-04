@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 func GetManualInput(in string) <-chan string {
@@ -57,12 +58,22 @@ type ProgramMain func(<-chan string) string
 
 type ProgramValidation func(output string) bool
 
-func ReportResult(result bool) {
+func ReportResult(result bool, s float64) {
 	if result {
-		fmt.Println("Program is correct!")
+		fmt.Printf("Your program finished in %fs and is correct! :)\n", s)
 	} else {
-		fmt.Println("Program is incorrect!")
+		fmt.Printf("Your program finished in %fs and is incorrect. :(\n", s)
 	}
+}
+
+const timeout = 1.0
+
+func CheckProgramConditions(t time.Time) (s float64) {
+	duration := time.Since(t)
+	if s = duration.Seconds(); s > timeout {
+		fmt.Printf("Your program is incorrect, due to the 1s timeout limit: %fs\n", s)
+	}
+	return
 }
 
 func RunManualProgram(in string, main ProgramMain) {
@@ -71,73 +82,25 @@ func RunManualProgram(in string, main ProgramMain) {
 }
 
 func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
-	output := main(GetManualInput(in))
-
-	if echo {
-		fmt.Println(output)
-	}
-
-	result := TestOutput(test, output)
-	ReportResult(result)
+	RunAndSelfValidateManualProgram(in, echo, main, func(out string) bool {
+		return TestOutput(test, out)
+	})
 }
 
 func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, validation ProgramValidation) {
-	output := main(GetManualInput(in))
+	input := GetManualInput(in)
 
-	if echo {
-		fmt.Println(output)
+	start := time.Now()
+	output := main(input)
+
+	if t := CheckProgramConditions(start); t <= timeout {
+		if echo {
+			fmt.Println(output)
+		}
+
+		result := validation(output)
+		ReportResult(result, t)
 	}
-
-	result := validation(output)
-	ReportResult(result)
-}
-
-type FlowProgram interface {
-	Update(string)
-	GetOutput() string
-}
-
-func RunFlowProgram(in string, program FlowProgram) {
-	ch, ok := GetFlowInput(in)
-
-	for <-ok {
-		program.Update(<-ch)
-	}
-
-	output := program.GetOutput()
-	fmt.Println(output)
-}
-
-func RunAndValidateFlowProgram(in, test string, echo bool, program FlowProgram) {
-	ch, ok := GetFlowInput(in)
-
-	for <-ok {
-		program.Update(<-ch)
-	}
-
-	output := program.GetOutput()
-	if echo {
-		fmt.Println(output)
-	}
-
-	result := TestOutput(test, output)
-	ReportResult(result)
-}
-
-func RunAndSelfValidateFlowProgram(in string, echo bool, program FlowProgram, validation ProgramValidation) {
-	ch, ok := GetFlowInput(in)
-
-	for <-ok {
-		program.Update(<-ch)
-	}
-
-	output := program.GetOutput()
-	if echo {
-		fmt.Println(output)
-	}
-
-	result := validation(output)
-	ReportResult(result)
 }
 
 type TargetProgram interface {
@@ -151,25 +114,29 @@ type TargetProgram interface {
 
 func RunTargetProgram(in string, trace bool, program TargetProgram) {
 	ch := GetManualInput(in)
+
+	start := time.Now()
 	program.ParseInitialData(ch)
 
 	for {
-		input := program.GetInput()
-		output := program.Update(input)
-		result := program.SetOutput(output)
+		if t := CheckProgramConditions(start); t <= timeout {
+			input := program.GetInput()
+			output := program.Update(input)
+			result := program.SetOutput(output)
 
-		if trace {
-			fmt.Printf("%s\n%s\n\n", output, result)
-		}
+			if trace {
+				fmt.Printf("%s\n%s\n\n", output, result)
+			}
 
-		if program.WinConditionCheck() {
-			ReportResult(true)
-			break
-		}
+			if program.WinConditionCheck() {
+				ReportResult(true, t)
+				break
+			}
 
-		if program.LoseConditionCheck() {
-			ReportResult(false)
-			break
+			if program.LoseConditionCheck() {
+				ReportResult(false, t)
+				break
+			}
 		}
 	}
 }
