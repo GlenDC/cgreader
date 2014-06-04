@@ -66,7 +66,11 @@ func ReportResult(result bool, s float64) {
 	}
 }
 
-const timeout = 1.0
+var timeout float64 = 1.0
+
+func SetTimeout(f float64) {
+	timeout = f
+}
 
 func CheckProgramConditions(t time.Time) (s float64) {
 	duration := time.Since(t)
