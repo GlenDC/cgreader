@@ -97,6 +97,8 @@ func RunFunction(function Function) (result bool) {
 func RunProgram(execute Execute, report Report) bool {
 	ch := make(chan float64)
 	och := make(chan string, buffer)
+	exit := make(chan struct{})
+	error := make(chan struct{})
 
 	output := make([]string, 0)
 
@@ -107,19 +109,35 @@ func RunProgram(execute Execute, report Report) bool {
 		close(ch)
 	}()
 
-	for {
-		line, ok := <-och
-
-		if !ok {
-			break
+	go func() {
+		for {
+			select {
+			case <-exit:
+				return
+			default:
+				if CheckProgramConditions(start) > timeout {
+					close(error)
+				}
+				time.Sleep(500 * time.Second)
+			}
+			
 		}
+	}()
 
-		output = append(output, line)
-
-		if CheckProgramConditions(start) > timeout {
-			return false
+	for active := true; active; {
+		select {
+		case <-error:
+			active = false
+		case line, ok := <-och:
+			if ok {
+				output = append(output, line)
+			} else {
+				active = false
+			}
 		}
 	}
+
+	close(exit)
 
 	report(output, <-ch)
 	return true
