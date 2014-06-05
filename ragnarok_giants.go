@@ -143,15 +143,15 @@ func Pow(x int) int {
 	return int(math.Pow(float64(x), 2.0))
 }
 
-func (ragnarok *RagnarokGiants) Update(ch <-chan string) string {
-	return ragnarok.UserUpdate(ch)
+func (ragnarok *RagnarokGiants) Update(input <-chan string, output chan string) {
+	ragnarok.UserUpdate(input, output)
 }
 
-func (ragnarok *RagnarokGiants) SetOutput(output string) string {
+func (ragnarok *RagnarokGiants) SetOutput(output []string) string {
 	ragnarok.MoveGiants()
 
 	var hotspots []Vector
-	if output == STRIKE {
+	if output[0] == STRIKE {
 		for i := 0; i < 9; i++ {
 			x, y := 0, 1
 			for u := 0; u < 2; u++ {
@@ -168,16 +168,16 @@ func (ragnarok *RagnarokGiants) SetOutput(output string) string {
 			}
 		}
 		ragnarok.energy -= 1
-	} else if output != WAIT {
-		if strings.Contains(output, "N") {
+	} else if output[0] != WAIT {
+		if strings.Contains(output[0], "N") {
 			ragnarok.thor.y -= 1
-		} else if strings.Contains(output, "S") {
+		} else if strings.Contains(output[0], "S") {
 			ragnarok.thor.y += 1
 		}
 
-		if strings.Contains(output, "E") {
+		if strings.Contains(output[0], "E") {
 			ragnarok.thor.x += 1
-		} else if strings.Contains(output, "W") {
+		} else if strings.Contains(output[0], "W") {
 			ragnarok.thor.x -= 1
 		}
 	}

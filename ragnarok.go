@@ -6,7 +6,7 @@ import (
 )
 
 type UserInitializeFunction func(<-chan string)
-type UserUpdateFunction func(<-chan string) string
+type UserUpdateFunction func(<-chan string, chan string)
 
 type Vector struct {
 	x, y int
@@ -92,22 +92,22 @@ func (ragnarok *Ragnarok) GetInput() (ch chan string) {
 	return
 }
 
-func (ragnarok *Ragnarok) Update(ch <-chan string) string {
-	return ragnarok.UserUpdate(ch)
+func (ragnarok *Ragnarok) Update(input <-chan string, output chan string) {
+	ragnarok.UserUpdate(input, output)
 }
 
-func (ragnarok *Ragnarok) SetOutput(output string) string {
+func (ragnarok *Ragnarok) SetOutput(output []string) string {
 	ragnarok.trail = append(ragnarok.trail, Vector{ragnarok.thor.x, ragnarok.thor.y, "+"})
 
-	if strings.Contains(output, "N") {
+	if strings.Contains(output[0], "N") {
 		ragnarok.thor.y -= 1
-	} else if strings.Contains(output, "S") {
+	} else if strings.Contains(output[0], "S") {
 		ragnarok.thor.y += 1
 	}
 
-	if strings.Contains(output, "E") {
+	if strings.Contains(output[0], "E") {
 		ragnarok.thor.x += 1
-	} else if strings.Contains(output, "W") {
+	} else if strings.Contains(output[0], "W") {
 		ragnarok.thor.x -= 1
 	}
 

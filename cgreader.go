@@ -28,18 +28,23 @@ func GetManualInput(in string) <-chan string {
 	return ch
 }
 
-func TestOutput(test, out string) bool {
+func TestOutput(test string, output []string) bool {
 	file, err := ioutil.ReadFile(test)
 	if err == nil {
-		test = fmt.Sprintf("%s", string(file))
-		return out == test
+		test := strings.Split(string(file), "\n")
+
+		for i, line := range output {
+			if line != test[i] {
+				return false
+			}
+		}
+
+		return true
 	}
 	return false
 }
 
-type ProgramMain func(<-chan string) string
-
-type ProgramValidation func(output string) bool
+type ProgramMain func(<-chan string, chan string)
 
 func ReportResult(result bool, s float64) {
 	if result {
@@ -64,13 +69,8 @@ func CheckProgramConditions(t time.Time) (s float64) {
 }
 
 type Function func()
-type Execute func() string
-type Report func(string, float64)
-
-type ProgramInformation struct {
-	time   float64
-	output string
-}
+type Execute func(chan string)
+type Report func([]string, float64)
 
 func RunFunction(function Function) (result bool) {
 	ch := make(chan struct{})
@@ -94,53 +94,69 @@ func RunFunction(function Function) (result bool) {
 	}
 }
 
-func RunProgram(execute Execute, report Report) (result bool) {
-	ch := make(chan ProgramInformation)
+func RunProgram(execute Execute, report Report) bool {
+	ch := make(chan float64)
+	och := make(chan string, buffer)
+
+	output := make([]string, 0)
 
 	start := time.Now()
 	go func() {
-		output := execute()
-		ch <- ProgramInformation{time.Since(start).Seconds(), output}
+		execute(och)
+		ch <- time.Since(start).Seconds()
 		close(ch)
 	}()
 
-	var info ProgramInformation
+	for {
+		line, ok := <-och
+
+		if !ok {
+			break
+		}
+
+		output = append(output, line)
+
+		if CheckProgramConditions(start) > timeout {
+			return false
+		}
+	}
+
+	report(output, <-ch)
+	return true
+
+}
+
+func RunManualProgram(in string, main ProgramMain) {
+	output := make(chan string, buffer)
+	exit := make(chan struct{})
+	go func() {
+		main(GetManualInput(in), output)
+		close(output)
+		close(exit)
+	}()
 	for {
 		select {
-		case info = <-ch:
-			report(info.output, info.time)
-			result = true
+		case <-exit:
 			return
-		default:
-			if CheckProgramConditions(start) > timeout {
-				result = false
-				return
-			}
+		case line := <-output:
+			fmt.Println(line)
 		}
 	}
 }
 
-func RunManualProgram(in string, main ProgramMain) {
-	output := main(GetManualInput(in))
-	fmt.Println(output)
-}
-
 func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
-	RunAndSelfValidateManualProgram(in, echo, main, func(out string) bool {
-		return TestOutput(test, out)
-	})
-}
-
-func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, validation ProgramValidation) {
 	input := GetManualInput(in)
-	RunProgram(func() string {
-		return main(input)
-	}, func(output string, time float64) {
+	RunProgram(func(output chan string) {
+		main(input, output)
+		close(output)
+	}, func(output []string, time float64) {
 		if echo {
-			fmt.Println(output)
+			for _, line := range output {
+				fmt.Printf("%s\n", line)
+			}
 		}
 
-		result := validation(output)
+		result := TestOutput(test, output)
 		ReportResult(result, time)
 	})
 }
@@ -148,8 +164,8 @@ func RunAndSelfValidateManualProgram(in string, echo bool, main ProgramMain, val
 type TargetProgram interface {
 	ParseInitialData(<-chan string)
 	GetInput() chan string
-	Update(<-chan string) string
-	SetOutput(string) string
+	Update(<-chan string, chan string)
+	SetOutput([]string) string
 	LoseConditionCheck() bool
 	WinConditionCheck() bool
 }
@@ -161,13 +177,17 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 		var duration float64
 		for active := true; active; {
 			input := program.GetInput()
-			if RunProgram(func() string {
-				return program.Update(input)
-			}, func(output string, time float64) {
+			if RunProgram(func(output chan string) {
+				program.Update(input, output)
+				close(output)
+			}, func(output []string, time float64) {
 				result := program.SetOutput(output)
 
 				if trace {
-					fmt.Printf("%s\n%s\n\n", output, result)
+					for _, line := range output {
+						fmt.Println(line)
+					}
+					fmt.Printf("\n%s\n\n", result)
 				}
 
 				duration += time
