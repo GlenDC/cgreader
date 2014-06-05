@@ -7,7 +7,28 @@ import (
 	"time"
 )
 
-const buffer = 2048
+var buffer int = 2048
+var delay time.Duration
+
+func SetBuffer(size int) {
+	buffer = size
+}
+
+func SetFrameRate(fps int) {
+	if fps == 0 {
+		SetDelay(0)
+	} else {
+		SetDelay(1000 / fps)
+	}
+}
+
+func SetDelay(ms int) {
+	t := fmt.Sprintf("%dms", ms)
+	d, err := time.ParseDuration(t)
+	if err == nil {
+		delay = d
+	}
+}
 
 func GetManualInput(in string) <-chan string {
 	ch := make(chan string, buffer)
@@ -120,7 +141,7 @@ func RunProgram(execute Execute, report Report) bool {
 				}
 				time.Sleep(500 * time.Second)
 			}
-			
+
 		}
 	}()
 
@@ -141,17 +162,18 @@ func RunProgram(execute Execute, report Report) bool {
 
 	report(output, <-ch)
 	return true
-
 }
 
 func RunManualProgram(in string, main ProgramMain) {
 	output := make(chan string, buffer)
 	exit := make(chan struct{})
+
 	go func() {
 		main(GetManualInput(in), output)
 		close(output)
 		close(exit)
 	}()
+
 	for {
 		select {
 		case <-exit:
@@ -192,13 +214,12 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 	ch := GetManualInput(in)
 
 	if RunFunction(func() { program.ParseInitialData(ch) }) {
-		var duration float64
 		for active := true; active; {
 			input := program.GetInput()
 			if RunProgram(func(output chan string) {
 				program.Update(input, output)
 				close(output)
-			}, func(output []string, time float64) {
+			}, func(output []string, duration float64) {
 				result := program.SetOutput(output)
 
 				if trace {
@@ -208,7 +229,7 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 					fmt.Printf("\n%s\n\n", result)
 				}
 
-				duration += time
+				duration += duration
 
 				if program.WinConditionCheck() {
 					ReportResult(true, duration)
@@ -217,6 +238,8 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 					ReportResult(false, duration)
 					active = false
 				}
+
+				time.Sleep(delay)
 			}) == false {
 				return
 			}
