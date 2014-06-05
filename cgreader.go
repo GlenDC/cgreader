@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const buffer = 8192
+const buffer = 2048
 
 func GetManualInput(in string) <-chan string {
 	ch := make(chan string, buffer)
