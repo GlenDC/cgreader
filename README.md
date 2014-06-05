@@ -10,14 +10,15 @@ Small Go package to simulate the Codingame programs offline on your computer.
   1. [Manual Program](#manual-program)
     1. [Run a manual program](#run-a-manual-program)
     1. [Run and validate a manual program](#run-and-validate-a-manual-program)
-    1. [Run and self-validate a manual program](#run-and-self-validate-a-manual-program)
   1. [Target Program](#target-program)
     1. [Predefined Target Challenges](#predefined-target-challenges)
       1. [Ragnarok Example](#ragnarok-example)
       1. [List of Predefined Challenges](#list-of-predefined-challenges)
     1. [Template and Example](#template-and-example)
   1. [Challenge map in your terminal](#challenge-map-in-your-terminal)
-  1. [Challenge timeout](#challenge-timeout)
+  1. [Configuration](#configuration)
+    1. [Challenge timeout](#challenge-timeout)
+    1. [Framerate in Target Challenges](#framerate-in-target-challenges)
 1. [Feedback](#feedback)
 
 # Quick Guide
@@ -38,13 +39,12 @@ You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/
   1. Each frame your output will be used and update the game state via the _SetOutput_ method
   1. The program exits if the _LoseConditionCheck_- or/and _WinConditionCheck_ method returns true
 
-All programs, except target programs can either:
+Manual programs can:
 
-1. run the program
+1. run the program _or_
 1. run and validate the program based on a test text file
-1. run and validate the program based on a validation lambda
 
-With all three options you can also echo your final output if wanted.
+With both options you can also echo your output if wanted.
 
 **Target Programs shouldn't be used as a user, instead use the correct [Predefined Challenge Program](#list-of-predefined-challenges)!**
 
@@ -209,16 +209,6 @@ Suggestions to improve a type of program, or to define a new type of program are
     ### 
 
     Program is correct!
-
-### Run and self-validate a manual program
-
-#### Template
-
-_TODO: write this template_
-
-#### Example
-
-_TODO: write this example_
 
 ## Target Program
 
@@ -538,13 +528,25 @@ For challenges like [ragnarok](https://raw.githubusercontent.com/GlenDC/Codingam
     .  .  .  .  .  .  .  .  .  .  .  .  +  .  .  .  .  .  .  .  .  
     .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 
     
-# Challenge timeout
+# Configuration
+
+## Challenge timeout
 
 Challenges are considered and reported as invalid, when they take longer than _1 second_, the default timeout value. This value can be set to a custom value with the ``SetTimeout`` function, in case a challenge requires a different value.
 
 An example:
 
     cgreader.SetTimeout(42.0) // the challenge timeout is now 42 seconds
+
+## Framerate in Target Challenges
+
+In challenges like [ragnarok giants](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok_giants.md) you might want to have a slower framerate. By default it is not limited, and goes as fast as your code allows too. Using either the ``SetDelay`` or the ``SetFrameRate`` allows you to configure this and make your game run slower.
+
+Some examples:
+
+    cgreader.SetFrameRate(60) // == SetDelay(1000ms/60)
+    
+    cgreader.SetDelay(100) // Sleep each frame for 100ms == 0.1s
 
 # Feedback
 
