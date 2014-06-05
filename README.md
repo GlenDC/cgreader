@@ -22,7 +22,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
 1. [Feedback](#feedback)
 
 # Quick Guide
-The implementation is quite straightforward and simple. Your offline will be almost identical as your online codingame code, with the difference being that the input comes via _cgreader_ rather than via _stdin_.
+The implementation is quite straightforward and simple. Your offline will be almost identical as your online codingame code, with the difference being that the input/output goes via [channels](http://golang.org/doc/effective_go.html#channels) rather than via the _stdin_ and _stdout_.
 
 You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/descriptions), [input](https://github.com/GlenDC/Codingame/tree/master/input) and optionally the [output](https://github.com/GlenDC/Codingame/tree/master/output) text files all [here](https://github.com/glendc/Codingame) or on [the official Codingame website](http://www.codingame.com).
 
@@ -30,11 +30,11 @@ You can find the [descriptions](https://github.com/GlenDC/Codingame/tree/master/
 
 [Codingame](http://www.codingame.com) has a lot challenges. These challenges can be devided in types of programs based on how they receive input and what the goal of the challenge is.
 
-1. [Manual Program](#manual-program): This is the most simple program and just requires you to write a simple _main_ function that takes a _string channel_ as its input. This channel will give you the input line by line and it's up to you how to interpret the received input. The output of the program has to be returned at the end of this method.
-1. [Target Program](#target-program): Some challenges are based on win and lose conditions. These are the most complex program and require extra work from the user in order to do these challenges offline, as you'll have to write the logic of the challenge, on top of your usual challenge code. So how does a target program works?
+1. [Manual Program](#manual-program): This is the most simple program and just requires you to write a simple _main_ function that takes a _string channel_ as its input. This channel will give you the input line by line and it's up to you how to interpret the received input. The output of the program has to be returned via the output channel.
+1. [Target Program](#target-program): Some challenges are based on win and lose conditions. These are the most complex program and require extra work from the user in order to do these challenges offline, as you'll have to write the logic of the challenge, on top of your usual challenge code. Because of this there are the [predefined challenge programs](#list-of-predefined-challenges), that do all this hard work for you. But anyway... How does a target program work?
   1. You'll write a struct based on the _TargetProgram_ interface
   1. The initial input will be parsed and have to be manually interpred by you via the _InitialInput_ method.
-  1. The program runs and calls each frame the _Update_ method, using the input given via the _GetInput_ method. _Update_ will return your output for that frame
+  1. The program runs and calls each frame the _Update_ method, using the input given via the _GetInput_ method. _Update_ will return your output for that frame via the output channel.
     1. This output can also be traced if wanted.
   1. Each frame your output will be used and update the game state via the _SetOutput_ method
   1. The program exits if the _LoseConditionCheck_- or/and _WinConditionCheck_ method returns true
@@ -64,9 +64,9 @@ Suggestions to improve a type of program, or to define a new type of program are
 
     func main() {
       cgreader.RunManualProgram(
-          "<INPUT TEXT FILE>",                          // program input
-          func(ch <-chan string) string {               // program main
-              return "<YOUR FINAL OUTPUT HERE>"         // program output
+          "<INPUT TEXT FILE>",                          // program input source
+          func(input <-chan string, output chan string) {            
+              // your solution here
       })
     }
 
@@ -83,40 +83,36 @@ Suggestions to improve a type of program, or to define a new type of program are
     func main() {
       cgreader.RunManualProgram(
         "../../input/ascii_1.txt",
-        func(ch <-chan string) string {
+        func(input <-chan string, output chan string) {
           var width, height int
           var text string
 
-          fmt.Sscanln(<-ch, &width)
-          fmt.Sscanln(<-ch, &height)
-          fmt.Sscanln(<-ch, &text)
+          fmt.Sscanln(<-input, &width)
+          fmt.Sscanln(<-input, &height)
+          fmt.Sscanln(<-input, &text)
 
           text = strings.ToUpper(text)
 
           ascii := make([]string, height)
           for i := 0; i < height; i++ {
-            ascii[i] = <-ch
+            ascii[i] = <-input
           }
 
-          output := make([]string, height)
+          lines := make([]string, height)
           for _, char := range text {
             character := int(char) - 65
             if character < 0 || character > 26 {
               character = 26
             }
-            for i := range output {
+            for i := range lines {
               position := character * width
-              output[i] += ascii[i][position : position+width]
+              lines[i] += ascii[i][position : position+width]
             }
           }
 
-          var program_output string
-
-          for _, line := range output {
-            program_output += line + "\n"
+          for _, line := range lines {
+            output <- line
           }
-
-          return program_output
         })
     }
 
@@ -140,11 +136,11 @@ Suggestions to improve a type of program, or to define a new type of program are
 
     func main() {
         cgreader.RunAndValidateProgramManual(
-            "<INPUT TEXT FILE>",                          // program input
-            "<OUTPUT TEXT FILE>",                         // expected output
+            "<INPUT TEXT FILE>",                          // program input file
+            "<OUTPUT TEXT FILE>",                         // expected output file
             true,                                         // show output?
-            func(ch <-chan string) string {               // program main
-                return "<YOUR FINAL OUTPUT HERE>"         // program output
+            func(input <-chan string, output chan string) {               // program main
+                // your solution here
             })
     }
 
@@ -163,40 +159,36 @@ Suggestions to improve a type of program, or to define a new type of program are
         "../input/ascii_1.txt",
         "../output/ascii_1.txt",
         true,
-        func(ch <-chan string) string {
+        func(input <-chan string, output chan string) {
           var width, height int
           var text string
 
-          fmt.Sscanln(<-ch, &width)
-          fmt.Sscanln(<-ch, &height)
-          fmt.Sscanln(<-ch, &text)
+          fmt.Sscanln(<-input, &width)
+          fmt.Sscanln(<-input, &height)
+          fmt.Sscanln(<-input, &text)
 
           text = strings.ToUpper(text)
 
           ascii := make([]string, height)
           for i := 0; i < height; i++ {
-            ascii[i] = <-ch
+            ascii[i] = <-input
           }
 
-          output := make([]string, height)
+          lines := make([]string, height)
           for _, char := range text {
             character := int(char) - 65
             if character < 0 || character > 26 {
               character = 26
             }
-            for i := range output {
+            for i := range lines {
               position := character * width
-              output[i] += ascii[i][position : position+width]
+              lines[i] += ascii[i][position : position+width]
             }
           }
 
-          var program_output string
-
-          for _, line := range output {
-            program_output += line + "\n"
+          for _, line := range lines {
+            output <- line;
           }
-
-          return program_output
         })
     }
 
@@ -231,13 +223,12 @@ Let's say we have the follow _psuedo_ offline [Ragnarok](https://raw.githubuserc
     
     // definition of functions, types and variables...
     
-    func Initialize(ch <-chan string) {
+    func Initialize(input <-chan string) {
       // parse the initial input, no output expected...
     }
     
-    func Update(ch <-chan string) string {
+    func Update(input <-chan string, output chan string) {
       // the code of your solution logic will be defined here...
-      // return "output"
     }
     
     func main() {
@@ -263,7 +254,7 @@ After your converted this code **manually**, you will end up with the following 
       }
     }
     
-As you can see it's quite similar. On top of this you'll have to convert code that makes use of the channel input parameter, to use the standard input instead. (e.g. ``fmt.Sscanf(<-ch`` to ``fmt.Scanf(``)
+As you can see it's quite similar. On top of this you'll have to convert code that makes use of the channel input parameter, to use the standard input instead. (e.g. ``fmt.Sscanf(<-input`` to ``fmt.Scanf(`` and ``output <- fmt.Sprintf`` to ``fmt.Printf``)
 
 #### Ragnarok Example
 
@@ -313,17 +304,16 @@ _Contributions on the "reverse engineering" of these challenges are more than we
       // parse the initial data, just like in a manual program
     }
 
-    func (program *Program) GetInput() (ch chan string) {
-      ch = make(chan string)
+    func (program *Program) GetInput() (input chan string) {
+      input = make(chan string)
       go func() {
         // pass the challenge input into the channel
       }()
       return
     }
 
-    func (program *Program) Update(ch <-chan string) string {
+    func (program *Program) Update(input <-chan string, output chan string) {
       // your solution logic will be defined here
-      // return an output string, based on the input given via the channel
     }
 
     func (program *Program) SetOutput(output string) string {
@@ -348,137 +338,7 @@ _Contributions on the "reverse engineering" of these challenges are more than we
 
 #### Example
 
-    package main
-
-    import (
-      "fmt"
-      "github.com/glendc/cgreader"
-      "strings"
-    )
-
-    type Vector struct {
-      x, y int
-    }
-
-    type Ragnarok struct {
-      thor, target, dimensions Vector
-      energy                   int
-    }
-
-    func GetDirection(a, b string, x, y, v int) <-chan string {
-      ch := make(chan string)
-      go func() {
-        difference := x - y
-        switch {
-        case difference < 0:
-          ch <- a
-        case difference > 0:
-          ch <- b
-        default:
-          ch <- ""
-        }
-        close(ch)
-      }()
-      return ch
-    }
-
-    func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
-      fmt.Sscanf(
-        <-ch,
-        "%d %d %d %d %d %d %d \n",
-        &ragnarok.dimensions.x,
-        &ragnarok.dimensions.y,
-        &ragnarok.thor.x,
-        &ragnarok.thor.y,
-        &ragnarok.target.x,
-        &ragnarok.target.y,
-        &ragnarok.energy)
-    }
-
-    func (ragnarok *Ragnarok) GetInput() (ch chan string) {
-      ch = make(chan string)
-      go func() {
-        ch <- fmt.Sprintf("%d", ragnarok.energy)
-      }()
-      return
-    }
-
-    func (ragnarok *Ragnarok) Update(ch <-chan string) string {
-      channel_b := GetDirection("N", "S", ragnarok.target.y, ragnarok.thor.y, ragnarok.thor.y)
-      channel_a := GetDirection("E", "W", ragnarok.thor.x, ragnarok.target.x, ragnarok.thor.x)
-
-      result_b := <-channel_b
-      result_a := <-channel_a
-
-      return fmt.Sprint(result_b + result_a)
-    }
-
-    func (ragnarok *Ragnarok) SetOutput(output string) string {
-      if strings.Contains(output, "N") {
-        ragnarok.thor.y -= 1
-      } else if strings.Contains(output, "S") {
-        ragnarok.thor.y += 1
-      }
-
-      if strings.Contains(output, "E") {
-        ragnarok.thor.x += 1
-      } else if strings.Contains(output, "W") {
-        ragnarok.thor.x -= 1
-      }
-
-      ragnarok.energy -= 1
-
-      return fmt.Sprintf(
-        "Target = (%d,%d)\nThor = (%d,%d)\nEnergy = %d",
-        ragnarok.target.x,
-        ragnarok.target.y,
-        ragnarok.thor.x,
-        ragnarok.thor.y,
-        ragnarok.energy)
-    }
-
-    func (ragnarok *Ragnarok) LoseConditionCheck() bool {
-      if ragnarok.energy <= 0 {
-        return true
-      }
-
-      x, y := ragnarok.thor.x, ragnarok.thor.y
-      dx, dy := ragnarok.dimensions.x, ragnarok.dimensions.y
-
-      if x < 0 || x >= dx || y < 0 || y >= dy {
-        return true
-      }
-
-      return false
-    }
-
-    func (ragnarok *Ragnarok) WinConditionCheck() bool {
-      return ragnarok.target == ragnarok.thor
-    }
-
-    func main() {
-      cgreader.RunTargetProgram("../../input/ragnarok_1.txt", true, &Ragnarok{})
-    }
-
-
-##### Output:
-
-    E
-    Target = (10,8)
-    Thor = (8,8)
-    Energy = 2
-
-    E
-    Target = (10,8)
-    Thor = (9,8)
-    Energy = 1
-
-    E
-    Target = (10,8)
-    Thor = (10,8)
-    Energy = 0
-    
-    Program is correct!
+Take a look at [the ragnarok predefined target challenge](https://github.com/GlenDC/cgreader/blob/master/ragnarok.go), which is a simple and clear example on how to implement a target program. It also shows that it requires much more coding and knowledge to develop one, than to actually solve it, which is the reason why a raw target program shouldn't be used by _end-users_.
     
 # Challenge map in your terminal
 
