@@ -20,7 +20,7 @@ Small Go package to simulate the Codingame programs offline on your computer.
     1. [Challenge timeout](#challenge-timeout)
     1. [Framerate in Target Challenges](#framerate-in-target-challenges)
     1. [Output Callback](#output-callback)
-  1. [Support for other languages](#output-for-ther-languages)
+  1. [Support for other languages](#output-for-other-languages)
 1. [Feedback](#feedback)
 
 # Quick Guide
