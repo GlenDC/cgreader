@@ -7,8 +7,11 @@ import (
 	"time"
 )
 
+// conf
+
 var buffer int = 2048
 var delay time.Duration
+var timeout float64 = 1.0
 
 func SetBuffer(size int) {
 	buffer = size
@@ -29,6 +32,24 @@ func SetDelay(ms int) {
 		delay = d
 	}
 }
+
+func SetTimeout(f float64) {
+	timeout = f
+}
+
+// output
+
+type PrintfCallback func(format string, a ...interface{})
+
+var Printf PrintfCallback = func(format string, a ...interface{}) {
+	fmt.Printf(format, a...)
+}
+
+func SetPrintfCallback(callback PrintfCallback) {
+	Printf = callback
+}
+
+// src
 
 func GetManualInput(in string) <-chan string {
 	ch := make(chan string, buffer)
@@ -69,22 +90,16 @@ type ProgramMain func(<-chan string, chan string)
 
 func ReportResult(result bool, s float64) {
 	if result {
-		fmt.Printf("Your program finished in %fs and is correct! :)\n", s)
+		Printf("Your program finished in %fs and is correct! :)\n", s)
 	} else {
-		fmt.Printf("Your program finished in %fs and is incorrect. :(\n", s)
+		Printf("Your program finished in %fs and is incorrect. :(\n", s)
 	}
-}
-
-var timeout float64 = 1.0
-
-func SetTimeout(f float64) {
-	timeout = f
 }
 
 func CheckProgramConditions(t time.Time) (s float64) {
 	duration := time.Since(t)
 	if s = duration.Seconds(); s > timeout {
-		fmt.Printf("Your program timed out after %fs! :(\n", timeout)
+		Printf("Your program timed out after %fs! :(\n", timeout)
 	}
 	return
 }
@@ -179,7 +194,7 @@ func RunManualProgram(in string, main ProgramMain) {
 		case <-exit:
 			return
 		case line := <-output:
-			fmt.Println(line)
+			Printf("%s\n", line)
 		}
 	}
 }
@@ -192,7 +207,7 @@ func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 	}, func(output []string, time float64) {
 		if echo {
 			for _, line := range output {
-				fmt.Printf("%s\n", line)
+				Printf("%s\n", line)
 			}
 		}
 
@@ -224,9 +239,9 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 
 				if trace {
 					for _, line := range output {
-						fmt.Println(line)
+						Printf("%s\n", line)
 					}
-					fmt.Printf("\n%s\n\n", result)
+					Printf("\n%s\n\n", result)
 				}
 
 				duration += duration
@@ -264,9 +279,9 @@ func DrawMap(width, height int, background string, objects ...MapObject) {
 					break
 				}
 			}
-			fmt.Printf("%s ", c)
+			Printf("%s ", c)
 		}
-		fmt.Println("")
+		Printf("\n")
 	}
-	fmt.Println("")
+	Printf("\n")
 }
