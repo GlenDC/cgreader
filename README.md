@@ -19,6 +19,8 @@ Small Go package to simulate the Codingame programs offline on your computer.
   1. [Configuration](#configuration)
     1. [Challenge timeout](#challenge-timeout)
     1. [Framerate in Target Challenges](#framerate-in-target-challenges)
+    1. [Output Callback](#output-callback)
+  1. [Support for other languages](#output-for-ther-languages)
 1. [Feedback](#feedback)
 
 # Quick Guide
@@ -407,6 +409,20 @@ Some examples:
     cgreader.SetFrameRate(60) // == SetDelay(1000ms/60)
     
     cgreader.SetDelay(100) // Sleep each frame for 100ms == 0.1s
+
+## Output Callback
+
+All format in cgreader is formatted, and uses fmt.Printf as _stdout_. You can call the ``SetPrintfCallback`` function in case you want to redirect the output to somewhere else:
+
+    // the type for the Printf callback, used in cgreader
+    type PrintfCallback func(format string, a ...interface{})
+    
+    // set cgreader's Printf callback via this function
+    func SetPrintfCallback(callback PrintfCallback)
+
+# Support for other languages
+
+Even though cgreader is written in go, it is not the only language supported. In case you want to find out what other languages are supported you can [click here](https://github.com/GlenDC/cgreader/wiki) to go to the wiki. There you'll also find detailed information about the different functions for each language, and how to use them.
 
 # Feedback
 
