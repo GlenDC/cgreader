@@ -10,8 +10,11 @@ Small Go package to simulate the Codingame programs offline on your computer.
   1. [Manual Program](#manual-program)
     1. [Run a manual program](#run-a-manual-program)
     1. [Run and validate a manual program](#run-and-validate-a-manual-program)
+    1. [Run your program with multiple input files](#run-your-program-with-multiple-input-files)
   1. [Target Program](#target-program)
     1. [Predefined Target Challenges](#predefined-target-challenges)
+      1. [Run with multiple input files](#run-with-multiple-input-files)
+      1. [How to convert your offline PT solution code to use online?](#how-to-convert-your-offline-pt-solution-code-to-use-online)
       1. [Ragnarok Example](#ragnarok-example)
       1. [List of Predefined Challenges](#list-of-predefined-challenges)
     1. [Template and Example](#template-and-example)
@@ -203,12 +206,44 @@ Suggestions to improve a type of program, or to define a new type of program are
     ### 
 
     Program is correct!
+    
+### Run your program with multiple input files
+
+Running each input file one by one is quite tedious. Therefore it is possible to run multiple input files at once, both for validated and normal manual programs. The definition of these functions is similar, except for the file parameter(s).
+
+##### Examples
+
+###### Multiple manual programs
+
+    // run multiple manual programs at once
+    // the output is seperated by a newline character
+    func RunManualPrograms(input []string, main ProgramMain)
+
+###### Multiple validated manual programs
+
+    // run and validated multiple manual programs at once
+    // the output is seperated by a newline character
+    func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramMain)
 
 ## Target Program
 
 ### Predefined Target Challenges
 
 The target program challenge type was created to allow you to play more complex challenges, such as Ragnarok, offline. However with target programs you still need to program the Challenge and AI logic yourself, which isn't the goal of the Codingame challenges at all. [The Predefined Target Challenges](#list-of-predefined-challenges) allow you to start on the challenge instantly and it keeps your code base exactly the same as if it were an online submission. 
+    
+#### Run your program with multiple input files
+
+Running each input file one by one is quite tedious. Therefore it is possible to run multiple input files at once. The definition of this function is similar to the normal one, except for the input file parameter.
+
+##### Examples
+
+    // run len(in) amount of times the target program
+    // with each time a different input file.
+    func RunTargetPrograms(input []string, trace bool, program TargetProgram)
+    
+    // each predefined target challenge allows you to do the same in a similar fashion
+    // example for the ragnarok challenge:
+    func RunRagnarokPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction)
 
 #### How to convert your offline PT solution code to use online?
 
