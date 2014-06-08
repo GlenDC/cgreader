@@ -189,6 +189,14 @@ func RunProgram(execute Execute, report Report) bool {
 	return true
 }
 
+func IsAmountOfInputAndTestFilesEqual(in, test []string) bool {
+	if len(in) != len(test) {
+		Printf("%s", "Make sure you give an equal amount of input files as the amount of test files.")
+		return false
+	}
+	return true
+}
+
 func RunManualProgram(in string, main ProgramMain) {
 	output := make(chan string, buffer)
 	exit := make(chan struct{})
@@ -209,6 +217,13 @@ func RunManualProgram(in string, main ProgramMain) {
 	}
 }
 
+func RunManualPrograms(in []string, main ProgramMain) {
+	for i := range in {
+		RunManualProgram(in[i], main)
+		Printf("\n")
+	}
+}
+
 func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 	input := GetManualInput(in)
 	RunProgram(func(output chan string) {
@@ -224,6 +239,15 @@ func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 		result := TestOutput(test, output)
 		ReportResult(result, time)
 	})
+}
+
+func RunAndValidateManualPrograms(in, test []string, echo bool, main ProgramMain) {
+	if IsAmountOfInputAndTestFilesEqual(in, test) {
+		for i := range in {
+			RunAndValidateManualProgram(in[i], test[i], echo, main)
+			Printf("\n")
+		}
+	}
 }
 
 type TargetProgram interface {
@@ -269,6 +293,13 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 				return
 			}
 		}
+	}
+}
+
+func RunTargetPrograms(in []string, trace bool, program TargetProgram) {
+	for i := range in {
+		RunTargetProgram(in[i], trace, program)
+		Printf("\n")
 	}
 }
 
