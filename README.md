@@ -225,6 +225,8 @@ Running each input file one by one is quite tedious. Therefore it is possible to
     // the output is seperated by a newline character
     func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramMain)
 
+You can take a look at [the Scrabble Challenge Solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/scrabble.go), as a practical example.
+
 ## Target Program
 
 ### Predefined Target Challenges
@@ -244,6 +246,8 @@ Running each input file one by one is quite tedious. Therefore it is possible to
     // each predefined target challenge allows you to do the same in a similar fashion
     // example for the ragnarok challenge:
     func RunRagnarokPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction)
+
+You can take a look at [the Ragnarok Giants Challenge Solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok_giants.go), as a practical example.
 
 #### How to convert your offline PT solution code to use online?
 
