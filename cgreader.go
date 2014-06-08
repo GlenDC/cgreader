@@ -49,6 +49,16 @@ func SetPrintfCallback(callback PrintfCallback) {
 	Printf = callback
 }
 
+// debug
+
+func Trace(msg string) {
+	Printf("%s\n", msg)
+}
+
+func Tracef(format string, a ...interface{}) {
+	Printf("%s\n", fmt.Sprintf(format, a...))
+}
+
 // src
 
 func GetManualInput(in string) <-chan string {
