@@ -231,7 +231,7 @@ Running each input file one by one is quite tedious. Therefore it is possible to
 
 The target program challenge type was created to allow you to play more complex challenges, such as Ragnarok, offline. However with target programs you still need to program the Challenge and AI logic yourself, which isn't the goal of the Codingame challenges at all. [The Predefined Target Challenges](#list-of-predefined-challenges) allow you to start on the challenge instantly and it keeps your code base exactly the same as if it were an online submission. 
     
-#### Run your program with multiple input files
+#### Run with multiple input files
 
 Running each input file one by one is quite tedious. Therefore it is possible to run multiple input files at once. The definition of this function is similar to the normal one, except for the input file parameter.
 
