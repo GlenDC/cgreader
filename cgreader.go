@@ -61,9 +61,9 @@ func Tracef(format string, a ...interface{}) {
 
 // src
 
-func GetManualInput(in string) <-chan string {
+func GetManualInput(input string) <-chan string {
 	ch := make(chan string, buffer)
-	file, err := ioutil.ReadFile(in)
+	file, err := ioutil.ReadFile(input)
 	if err == nil {
 		lines := strings.Split(string(file), "\n")
 		go func() {
@@ -189,20 +189,20 @@ func RunProgram(execute Execute, report Report) bool {
 	return true
 }
 
-func IsAmountOfInputAndTestFilesEqual(in, test []string) bool {
-	if len(in) != len(test) {
+func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
+	if len(input) != len(test) {
 		Printf("%s", "Make sure you give an equal amount of input files as the amount of test files.")
 		return false
 	}
 	return true
 }
 
-func RunManualProgram(in string, main ProgramMain) {
+func RunManualProgram(input string, main ProgramMain) {
 	output := make(chan string, buffer)
 	exit := make(chan struct{})
 
 	go func() {
-		main(GetManualInput(in), output)
+		main(GetManualInput(input), output)
 		close(output)
 		close(exit)
 	}()
@@ -217,17 +217,17 @@ func RunManualProgram(in string, main ProgramMain) {
 	}
 }
 
-func RunManualPrograms(in []string, main ProgramMain) {
-	for i := range in {
-		RunManualProgram(in[i], main)
+func RunManualPrograms(input []string, main ProgramMain) {
+	for i := range input {
+		RunManualProgram(input[i], main)
 		Printf("\n")
 	}
 }
 
-func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
-	input := GetManualInput(in)
+func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) {
+	ch := GetManualInput(input)
 	RunProgram(func(output chan string) {
-		main(input, output)
+		main(ch, output)
 		close(output)
 	}, func(output []string, time float64) {
 		if echo {
@@ -241,10 +241,10 @@ func RunAndValidateManualProgram(in, test string, echo bool, main ProgramMain) {
 	})
 }
 
-func RunAndValidateManualPrograms(in, test []string, echo bool, main ProgramMain) {
-	if IsAmountOfInputAndTestFilesEqual(in, test) {
-		for i := range in {
-			RunAndValidateManualProgram(in[i], test[i], echo, main)
+func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramMain) {
+	if IsAmountOfInputAndTestFilesEqual(input, test) {
+		for i := range input {
+			RunAndValidateManualProgram(input[i], test[i], echo, main)
 			Printf("\n")
 		}
 	}
@@ -259,8 +259,8 @@ type TargetProgram interface {
 	WinConditionCheck() bool
 }
 
-func RunTargetProgram(in string, trace bool, program TargetProgram) {
-	ch := GetManualInput(in)
+func RunTargetProgram(input string, trace bool, program TargetProgram) {
+	ch := GetManualInput(input)
 
 	if RunFunction(func() { program.ParseInitialData(ch) }) {
 		for active := true; active; {
@@ -296,9 +296,9 @@ func RunTargetProgram(in string, trace bool, program TargetProgram) {
 	}
 }
 
-func RunTargetPrograms(in []string, trace bool, program TargetProgram) {
-	for i := range in {
-		RunTargetProgram(in[i], trace, program)
+func RunTargetPrograms(input []string, trace bool, program TargetProgram) {
+	for i := range input {
+		RunTargetProgram(input[i], trace, program)
 		Printf("\n")
 	}
 }
