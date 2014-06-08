@@ -273,7 +273,7 @@ Let's say we have the follow _psuedo_ offline [Ragnarok](https://raw.githubuserc
     }
     
     func main() {
-      cgreader.RunRagnarok("ragnarok_1.txt", true, Initialize, Update)
+      cgreader.RunRagnarokProgram("ragnarok_1.txt", true, Initialize, Update)
     }
     
 After your converted this code **manually**, you will end up with the following online version:
