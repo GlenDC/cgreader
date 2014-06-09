@@ -62,6 +62,16 @@ func Tracef(format string, a ...interface{}) {
 	Printf("%s\n", fmt.Sprintf(format, a...))
 }
 
+// help
+
+func GetFileList(format string, n int) (files []string) {
+	files = make([]string, n)
+	for i := range files {
+		files[i] = fmt.Sprintf(format, i+1)
+	}
+	return
+}
+
 // src
 
 func GetManualInput(input string) <-chan string {
