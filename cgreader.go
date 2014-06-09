@@ -34,7 +34,7 @@ func SetDelay(ms int) {
 }
 
 func SetTimeout(seconds float64) {
-	dur, err := time.ParseDuration(fmt.Sprintf("%seconds", seconds))
+	dur, err := time.ParseDuration(fmt.Sprintf("%fs", seconds))
 	if err == nil {
 		timeout = dur
 	}
