@@ -11,7 +11,7 @@ import (
 
 var buffer int = 2048
 var delay time.Duration
-var timeout float64 = 1.0
+var timeout time.Duration = time.Second
 
 func SetBuffer(size int) {
 	buffer = size
@@ -33,8 +33,11 @@ func SetDelay(ms int) {
 	}
 }
 
-func SetTimeout(f float64) {
-	timeout = f
+func SetTimeout(seconds float64) {
+	dur, err := time.ParseDuration(fmt.Sprintf("%seconds", seconds))
+	if err == nil {
+		timeout = dur
+	}
 }
 
 // output
@@ -106,12 +109,12 @@ func ReportResult(result bool, s float64) {
 	}
 }
 
-func CheckProgramConditions(t time.Time) (s float64) {
+func CheckProgramConditions(t time.Time) float64 {
 	duration := time.Since(t)
-	if s = duration.Seconds(); s > timeout {
-		Printf("Your program timed out after %fs! :(\n", timeout)
+	if duration.Seconds() > timeout.Seconds() {
+		Printf("Your program timed out after %fs! :(\n", timeout.Seconds())
 	}
-	return
+	return duration.Seconds()
 }
 
 type Function func()
@@ -132,7 +135,7 @@ func RunFunction(function Function) (result bool) {
 			result = true
 			return
 		default:
-			if CheckProgramConditions(start) > timeout {
+			if CheckProgramConditions(start) > timeout.Seconds() {
 				result = false
 				return
 			}
@@ -161,10 +164,11 @@ func RunProgram(execute Execute, report Report) bool {
 			case <-exit:
 				return
 			default:
-				if CheckProgramConditions(start) > timeout {
+				if CheckProgramConditions(start) > timeout.Seconds() {
 					close(error)
 				}
-				time.Sleep(500 * time.Second)
+				time.Sleep(timeout)
+
 			}
 
 		}
@@ -185,7 +189,11 @@ func RunProgram(execute Execute, report Report) bool {
 
 	close(exit)
 
-	report(output, <-ch)
+	select {
+	case t := <-ch:
+		report(output, t)
+	default:
+	}
 	return true
 }
 
