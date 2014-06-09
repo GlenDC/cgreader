@@ -227,6 +227,8 @@ Running each input file one by one is quite tedious. Therefore it is possible to
 
 You can take a look at [the Scrabble Challenge Solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/scrabble.go), as a practical example.
 
+_tip: you can use the ``func GetFileList(format string, n int) (files []string)`` help function for a less error-prone and time saving approach._
+
 ## Target Program
 
 ### Predefined Target Challenges
@@ -239,7 +241,7 @@ Running each input file one by one is quite tedious. Therefore it is possible to
 
 ##### Examples
 
-    // run len(in) amount of times the target program
+    // run len(input) amount of times the target program
     // with each time a different input file.
     func RunTargetPrograms(input []string, trace bool, program TargetProgram)
     
@@ -248,6 +250,8 @@ Running each input file one by one is quite tedious. Therefore it is possible to
     func RunRagnarokPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction)
 
 You can take a look at [the Ragnarok Giants Challenge Solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok_giants.go), as a practical example.
+
+_tip: you can use the ``func GetFileList(format string, n int) (files []string)`` help function for a less error-prone and time saving approach._
 
 #### How to convert your offline PT solution code to use online?
 
