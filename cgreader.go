@@ -94,6 +94,10 @@ func GetManualInput(input string) <-chan string {
 }
 
 func TestOutput(test string, output []string) bool {
+	if len(output) == 0 {
+		return false
+	}
+
 	file, err := ioutil.ReadFile(test)
 	if err == nil {
 		test := strings.Split(string(file), "\n")
