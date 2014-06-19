@@ -137,6 +137,8 @@ func (kirk *Kirk) WinConditionCheck() bool {
 func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
 	kirk := Kirk{}
 
+	SetTimeout(0.1)
+
 	kirk.UserInitialize, kirk.UserUpdate, kirk.trace = initialize, update, trace
 	kirk.mountains, kirk.direction, kirk.canFire = make([]uint32, KIRK_N), 1, true
 
