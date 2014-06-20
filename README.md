@@ -313,12 +313,12 @@ _You can find templates for all [the ready-to-use challenges](#ready-to-use-chal
 
 * **Power of Thor**: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go)
 * **Thor Vs. Giants**: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok_giants.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok_giants.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok_giants.go)
+* **Kirk's Quest - The descent**: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/kirk.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/kirk.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/kirk.go)
 
 ##### challenges to be developed:
 
 * Skynet Final - Level 1
 * Skynet - The Chasm
-* Kirk's Quest - The descent
 * Mars Lander - Level 1
 * Indiana - Level 1
 * Mars Lander - Level 2
