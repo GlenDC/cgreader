@@ -3,7 +3,6 @@ package cgreader
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"strings"
 )
 
@@ -47,6 +46,8 @@ func (kirk *Kirk) ParseInitialData(ch <-chan string) {
 			kirk.mountains[i] += uint32(len(heights)) << KIRK_SX
 		}
 	}
+
+	kirk.UserInitialize(make(chan string))
 }
 
 func (kirk *Kirk) GetHeight(m uint32) uint32 {
@@ -75,40 +76,43 @@ func (kirk *Kirk) Update(input <-chan string, output chan string) {
 	kirk.UserUpdate(input, output)
 }
 
+func (kirk *Kirk) GetMountains(icons []MapObject) []MapObject {
+	for i, mountain := range kirk.mountains {
+		for height := int(kirk.GetHeight(mountain)); height < int(kirk.maxHeight); height++ {
+			icons = append(icons, MapObject(Vector{i, height, "X"}))
+		}
+	}
+	return icons
+}
+
 func (kirk *Kirk) SetOutput(output []string) string {
 	playerFired, damage := kirk.canFire && output[0] == "FIRE", uint32(0)
 	if playerFired {
+		kirk.canFire = false
 		m := kirk.mountains[kirk.player.x]
 		x := m >> KIRK_SX
 		if x > 0 {
 			id := x - 1
 			s := KIRK_S1 * id
-			height := int32((m >> s) & KIRK_M0)
-			damage = uint32(rand.Int31n(height) + 1)
-			height -= int32(damage)
-			if height == 0 {
-				x--
-			}
+			damage = uint32((m >> s) & KIRK_M0)
+			x--
 			m &= math.MaxUint32 - KIRK_MX - (KIRK_M0 << (id * KIRK_S1))
-			kirk.mountains[kirk.player.x] = m | (uint32(height) << s) | (x << KIRK_SX)
+			kirk.mountains[kirk.player.x] = m | (x << KIRK_SX)
 		}
 	}
 
 	kirk.player.x += int(kirk.direction)
 	if kirk.player.x < 0 || kirk.player.x > KIRK_N-1 {
+		kirk.canFire = true
 		kirk.player.y, kirk.direction = kirk.player.y+1, -kirk.direction
 		kirk.player.x += int(kirk.direction)
 	}
 
 	if kirk.trace {
-		icons := make([]MapObject, KIRK_N+1)
-		icons[KIRK_N] = MapObject(kirk.player)
-
-		for i, mountain := range kirk.mountains {
-			icons[i] = MapObject(Vector{i, int(kirk.GetHeight(mountain)), "X"})
-		}
-
-		DrawMap(KIRK_N, int(kirk.maxHeight), ".", icons...)
+		icons := make([]MapObject, 1)
+		icons[0] = MapObject(kirk.player)
+		icons = kirk.GetMountains(icons)
+		DrawMap(KIRK_N, int(kirk.maxHeight)-1, ".", icons...)
 
 		shipInfo := fmt.Sprintf("Ship = (%d,%d)\n", kirk.player.x, kirk.player.y)
 		if playerFired {
