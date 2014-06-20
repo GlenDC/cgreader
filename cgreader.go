@@ -3,6 +3,7 @@ package cgreader
 import (
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -38,6 +39,10 @@ func SetTimeout(seconds float64) {
 	if err == nil {
 		timeout = dur
 	}
+}
+
+func InitializeCGReader() {
+	rand.Seed(time.Now().UTC().UnixNano())
 }
 
 // output
@@ -220,6 +225,8 @@ func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
 }
 
 func RunManualProgram(input string, main ProgramMain) {
+	InitializeCGReader()
+
 	output := make(chan string, buffer)
 	exit := make(chan struct{})
 
@@ -247,6 +254,8 @@ func RunManualPrograms(input []string, main ProgramMain) {
 }
 
 func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) {
+	InitializeCGReader()
+
 	ch := GetManualInput(input)
 	RunProgram(func(output chan string) {
 		main(ch, output)
@@ -282,6 +291,8 @@ type TargetProgram interface {
 }
 
 func RunTargetProgram(input string, trace bool, program TargetProgram) {
+	InitializeCGReader()
+
 	ch := GetManualInput(input)
 
 	if RunFunction(func() { program.ParseInitialData(ch) }) {
