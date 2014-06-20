@@ -33,15 +33,15 @@ type Kirk struct {
 }
 
 func (kirk *Kirk) ParseInitialData(ch <-chan string) {
-	fmt.Sscanf(<-ch, "%u", &kirk.maxHeight)
-	kirk.player = Vector{0, int(kirk.maxHeight), "S"}
+	fmt.Sscanf(<-ch, "%d", &kirk.maxHeight)
+	kirk.player, kirk.maxHeight = Vector{0, 0, "S"}, kirk.maxHeight+1
 
 	for i := 0; i < KIRK_N; i++ {
 		heights := strings.Split(<-ch, " ")
 		for u, h := range heights {
 			var height uint32
-			fmt.Sscanf(h, "%u", &height)
-			kirk.mountains[i] += height << uint32(u) * KIRK_S1
+			fmt.Sscanf(h, "%d", &height)
+			kirk.mountains[i] += height << (uint32(u) * KIRK_S1)
 		}
 		if kirk.mountains[i]&KIRK_M0 != 0 {
 			kirk.mountains[i] += uint32(len(heights)) << KIRK_SX
@@ -49,14 +49,15 @@ func (kirk *Kirk) ParseInitialData(ch <-chan string) {
 	}
 }
 
-func GetKirkMountainHeight(m uint32) (height uint32) {
-	if id := (m & KIRK_MX) >> KIRK_SX; id > 0 {
-		for id--; id > 0; id-- {
-			s := KIRK_S1 * id
-			height += (m & (KIRK_M0 << s)) >> (KIRK_S1 * s)
+func (kirk *Kirk) GetHeight(m uint32) uint32 {
+	var height uint32
+	if id := m >> KIRK_SX; id > 0 {
+		for ; id > 0; id-- {
+			s := KIRK_S1 * (id - 1)
+			height += (m & (KIRK_M0 << s)) >> s
 		}
 	}
-	return
+	return uint32(kirk.maxHeight) - height - 1
 }
 
 func (kirk *Kirk) GetInput() (ch chan string) {
@@ -64,7 +65,7 @@ func (kirk *Kirk) GetInput() (ch chan string) {
 	go func() {
 		ch <- fmt.Sprintf("%d %d", kirk.player.x, kirk.player.y)
 		for _, mountain := range kirk.mountains {
-			ch <- fmt.Sprintf("%u", GetKirkMountainHeight(mountain))
+			ch <- fmt.Sprintf("%d", uint32(kirk.maxHeight)-kirk.GetHeight(mountain)-1)
 		}
 	}()
 	return
@@ -83,20 +84,20 @@ func (kirk *Kirk) SetOutput(output []string) string {
 			id := x - 1
 			s := KIRK_S1 * id
 			height := int32((m >> s) & KIRK_M0)
-			damage = uint32(rand.Int31n(height))
+			damage = uint32(rand.Int31n(height) + 1)
 			height -= int32(damage)
 			if height == 0 {
 				x--
 			}
-			m &= math.MaxUint32 - KIRK_MX - (KIRK_M0 << id * 4)
+			m &= math.MaxUint32 - KIRK_MX - (KIRK_M0 << (id * KIRK_S1))
 			kirk.mountains[kirk.player.x] = m | (uint32(height) << s) | (x << KIRK_SX)
 		}
 	}
 
 	kirk.player.x += int(kirk.direction)
 	if kirk.player.x < 0 || kirk.player.x > KIRK_N-1 {
-		kirk.player.y, kirk.direction = kirk.player.y-1, -kirk.direction
-		kirk.player.x += int(kirk.direction * 2)
+		kirk.player.y, kirk.direction = kirk.player.y+1, -kirk.direction
+		kirk.player.x += int(kirk.direction)
 	}
 
 	if kirk.trace {
@@ -104,14 +105,14 @@ func (kirk *Kirk) SetOutput(output []string) string {
 		icons[KIRK_N] = MapObject(kirk.player)
 
 		for i, mountain := range kirk.mountains {
-			icons[i] = MapObject(Vector{i, int(GetKirkMountainHeight(mountain)), "^"})
+			icons[i] = MapObject(Vector{i, int(kirk.GetHeight(mountain)), "X"})
 		}
 
 		DrawMap(KIRK_N, int(kirk.maxHeight), ".", icons...)
 
 		shipInfo := fmt.Sprintf("Ship = (%d,%d)\n", kirk.player.x, kirk.player.y)
 		if playerFired {
-			return shipInfo + fmt.Sprintf("Ship fired and did %u damage.", damage)
+			return shipInfo + fmt.Sprintf("Ship fired and did %d damage.", damage)
 		} else {
 			return shipInfo + "Ship hold fire."
 		}
@@ -121,8 +122,8 @@ func (kirk *Kirk) SetOutput(output []string) string {
 }
 
 func (kirk *Kirk) LoseConditionCheck() bool {
-	return kirk.player.y > 0 &&
-		kirk.player.y <= int(GetKirkMountainHeight(kirk.mountains[kirk.player.x]))
+	return kirk.player.y >= int(kirk.maxHeight) ||
+		kirk.player.y >= int(kirk.GetHeight(kirk.mountains[kirk.player.x]))
 }
 
 func (kirk *Kirk) WinConditionCheck() bool {
