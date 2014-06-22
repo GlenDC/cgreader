@@ -53,6 +53,12 @@ var Printf PrintfCallback = func(format string, a ...interface{}) {
 	fmt.Printf(format, a...)
 }
 
+type PrintCallback func(text string)
+
+var Print PrintCallback = func(text string)	{
+	println(text)
+} 
+
 func SetPrintfCallback(callback PrintfCallback) {
 	Printf = callback
 }
@@ -60,7 +66,7 @@ func SetPrintfCallback(callback PrintfCallback) {
 // debug
 
 func Trace(msg string) {
-	Printf("%s\n", msg)
+	Print(msg)
 }
 
 func Tracef(format string, a ...interface{}) {
@@ -222,7 +228,7 @@ func RunProgram(execute Execute, report Report) bool {
 
 func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
 	if len(input) != len(test) {
-		Printf("%s", "Make sure you give an equal amount of input files as the amount of test files.")
+		Print("Make sure you give an equal amount of input files as the amount of test files.")
 		return false
 	}
 	return true
@@ -253,14 +259,15 @@ func RunManualProgram(input string, main ProgramMain) {
 func RunManualPrograms(input []string, main ProgramMain) {
 	for i := range input {
 		RunManualProgram(input[i], main)
-		Printf("\n")
+		Print("\n")
 	}
 }
 
-func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) {
+func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) bool {
 	InitializeCGReader()
 
 	ch := GetManualInput(input)
+	var result bool
 	RunProgram(func(output chan string) {
 		main(ch, output)
 		close(output)
@@ -271,17 +278,22 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 			}
 		}
 
-		result := TestOutput(test, output)
+		result = TestOutput(test, output)
 		ReportResult(result, time)
 	})
+	return result
 }
 
 func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramMain) {
 	if IsAmountOfInputAndTestFilesEqual(input, test) {
+		var counter int
 		for i := range input {
-			RunAndValidateManualProgram(input[i], test[i], echo, main)
-			Printf("\n")
+			if RunAndValidateManualProgram(input[i], test[i], echo, main) {
+				counter++
+			}
+			Print("\n")
 		}
+		Printf("All programs finished. %d/%d programs succeeded\n", counter, len(input))
 	}
 }
 
@@ -359,7 +371,7 @@ func DrawMap(width, height int, background string, objects ...MapObject) {
 			}
 			Printf("%s ", c)
 		}
-		Printf("\n")
+		Print("\n")
 	}
-	Printf("\n")
+	Print("\n")
 }
