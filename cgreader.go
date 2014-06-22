@@ -251,7 +251,7 @@ func RunManualProgram(input string, main ProgramMain) {
 		case <-exit:
 			return
 		case line := <-output:
-			Printf("%s\n", line)
+			Print(line)
 		}
 	}
 }
@@ -259,7 +259,7 @@ func RunManualProgram(input string, main ProgramMain) {
 func RunManualPrograms(input []string, main ProgramMain) {
 	for i := range input {
 		RunManualProgram(input[i], main)
-		Print("\n")
+		Print("")
 	}
 }
 
@@ -274,7 +274,7 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 	}, func(output []string, time float64) {
 		if echo {
 			for _, line := range output {
-				Printf("%s\n", line)
+				Print(line)
 			}
 		}
 
@@ -291,7 +291,7 @@ func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramM
 			if RunAndValidateManualProgram(input[i], test[i], echo, main) {
 				counter++
 			}
-			Print("\n")
+			Print("")
 		}
 		Printf("All programs finished. %d/%d programs succeeded\n", counter, len(input))
 	}
@@ -322,7 +322,7 @@ func RunTargetProgram(input string, trace bool, program TargetProgram) {
 
 				if trace {
 					for _, line := range output {
-						Printf("%s\n", line)
+						Print(line)
 					}
 					Printf("\n%s\n\n", result)
 				}
@@ -348,7 +348,7 @@ func RunTargetProgram(input string, trace bool, program TargetProgram) {
 func RunTargetPrograms(input []string, trace bool, program TargetProgram) {
 	for i := range input {
 		RunTargetProgram(input[i], trace, program)
-		Printf("\n")
+		Print("")
 	}
 }
 
@@ -371,7 +371,7 @@ func DrawMap(width, height int, background string, objects ...MapObject) {
 			}
 			Printf("%s ", c)
 		}
-		Print("\n")
+		Print("")
 	}
-	Print("\n")
+	Print("")
 }
