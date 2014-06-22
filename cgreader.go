@@ -39,7 +39,6 @@ func SetTimeout(seconds float64) {
 		timeout = dur
 	}
 }
-
 // output
 
 type PrintfCallback func(format string, a ...interface{})
@@ -88,6 +87,7 @@ func GetManualInput(input string) <-chan string {
 			close(ch)
 		}()
 	} else {
+		Printf("Error finding input file with name \"%s\"", input)
 		close(ch)
 	}
 	return ch
@@ -109,6 +109,8 @@ func TestOutput(test string, output []string) bool {
 		}
 
 		return true
+	}	else	{
+		Printf("Error finding output file with name \"%s\"", test)
 	}
 	return false
 }
@@ -258,7 +260,6 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 				Printf("%s\n", line)
 			}
 		}
-
 		result := TestOutput(test, output)
 		ReportResult(result, time)
 	})
