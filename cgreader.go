@@ -293,7 +293,11 @@ func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramM
 			}
 			Print("")
 		}
-		Printf("All programs finished. %d/%d programs succeeded\n", counter, len(input))
+		emoji := ":)"
+		if counter != len(input) {
+			emoji = ":("
+		}
+		Printf("All programs finished. %d/%d programs succeeded %s\n", counter, len(input), emoji)
 	}
 }
 
