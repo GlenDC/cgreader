@@ -55,9 +55,9 @@ var Printf PrintfCallback = func(format string, a ...interface{}) {
 
 type PrintCallback func(text string)
 
-var Print PrintCallback = func(text string)	{
+var Print PrintCallback = func(text string) {
 	println(text)
-} 
+}
 
 func SetPrintfCallback(callback PrintfCallback) {
 	Printf = callback
@@ -121,7 +121,7 @@ func TestOutput(test string, output []string) bool {
 		}
 
 		return true
-	}	else	{
+	} else {
 		Printf("Error finding output file with name \"%s\"", test)
 	}
 	return false

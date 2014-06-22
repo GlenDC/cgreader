@@ -46,7 +46,7 @@ func GetADL(x, y int) (int, int) {
 	case x == y:
 		return 0, y
 	}
-	return 0,0
+	return 0, 0
 }
 
 func GetADR(x, y int) (int, int) {
@@ -58,7 +58,7 @@ func GetADR(x, y int) (int, int) {
 	case x != y:
 		return 0, y
 	}
-	return 0,0
+	return 0, 0
 }
 
 func (ragnarok *RagnarokGiants) MoveGiant(giant, target *Vector) {
