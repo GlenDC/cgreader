@@ -93,6 +93,7 @@ func GetManualInput(input string) <-chan string {
 			close(ch)
 		}()
 	} else {
+		Printf("Error finding input file with name \"%s\"", input)
 		close(ch)
 	}
 	return ch
@@ -114,6 +115,8 @@ func TestOutput(test string, output []string) bool {
 		}
 
 		return true
+	}	else	{
+		Printf("Error finding output file with name \"%s\"", test)
 	}
 	return false
 }
@@ -160,6 +163,7 @@ func RunFunction(function Function) (result bool) {
 			}
 		}
 	}
+	return
 }
 
 func RunProgram(execute Execute, report Report) bool {

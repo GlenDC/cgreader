@@ -40,6 +40,7 @@ func GetDirectionLetter(a, b string, v int) string {
 	case 1:
 		return b
 	}
+	return ""
 }
 
 func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
