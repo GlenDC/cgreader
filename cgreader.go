@@ -62,7 +62,7 @@ var Print PrintCallback = func(text string) {
 type PrintlnCallback func(text string)
 
 var Println PrintCallback = func(text string) {
-	println(text)
+	Printf("%s\n", text)
 }
 
 func SetPrintfCallback(callback PrintfCallback) {
