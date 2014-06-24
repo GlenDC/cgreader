@@ -139,7 +139,7 @@ func (kirk *Kirk) WinConditionCheck() bool {
 	return true
 }
 
-func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) bool {
 	kirk := Kirk{}
 
 	SetTimeout(0.1)
@@ -147,12 +147,16 @@ func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction,
 	kirk.UserInitialize, kirk.UserUpdate, kirk.trace = initialize, update, trace
 	kirk.mountains, kirk.direction, kirk.canFire = make([]uint32, KIRK_N), 1, true
 
-	RunTargetProgram(input, trace, &kirk)
+	return RunTargetProgram(input, trace, &kirk)
 }
 
 func RunKirkPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	var counter int
 	for i := range input {
-		RunKirkProgram(input[i], trace, initialize, update)
-		Printf("\n")
+		if RunKirkProgram(input[i], trace, initialize, update) {
+			counter++
+		}
+		Println("")
 	}
+	ReportTotalResult(counter, len(input))
 }

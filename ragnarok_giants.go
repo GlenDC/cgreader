@@ -253,7 +253,7 @@ func RunRagnarokGiantsPrograms(input []string, trace bool, initialize UserInitia
 		if RunRagnarokGiantsProgram(input[i], trace, initialize, update) {
 			counter++
 		}
-		Printf("\n")
+		Println("")
 	}
 	ReportTotalResult(counter, len(input))
 }

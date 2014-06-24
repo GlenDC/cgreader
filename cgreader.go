@@ -239,7 +239,7 @@ func RunProgram(execute Execute, report Report) (result bool) {
 
 func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
 	if len(input) != len(test) {
-		Print("Make sure you give an equal amount of input files as the amount of test files.")
+		Println("Make sure you give an equal amount of input files as the amount of test files.")
 		return false
 	}
 	return true
@@ -262,7 +262,7 @@ func RunManualProgram(input string, main ProgramMain) {
 		case <-exit:
 			return
 		case line := <-output:
-			Print(line)
+			Println(line)
 		}
 	}
 }
@@ -284,7 +284,7 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 	}, func(output []string, time float64) {
 		if echo {
 			for _, line := range output {
-				Print(line)
+				Println(line)
 			}
 		}
 
@@ -340,7 +340,7 @@ func RunTargetProgram(input string, trace bool, program TargetProgram) (isOK boo
 
 				if trace {
 					for _, line := range output {
-						Print(line)
+						Println(line)
 					}
 					Printf("\n%s\n\n", result)
 				}

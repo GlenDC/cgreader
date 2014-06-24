@@ -159,7 +159,7 @@ func RunRagnarokPrograms(input []string, trace bool, initialize UserInitializeFu
 		if RunRagnarokProgram(input[i], trace, initialize, update) {
 			counter++
 		}
-		Printf("\n")
+		Println("")
 	}
 	ReportTotalResult(counter, len(input))
 }
