@@ -56,6 +56,12 @@ var Printf PrintfCallback = func(format string, a ...interface{}) {
 type PrintCallback func(text string)
 
 var Print PrintCallback = func(text string) {
+	Printf("%s", text)
+}
+
+type PrintlnCallback func(text string)
+
+var Println PrintCallback = func(text string) {
 	println(text)
 }
 
@@ -67,6 +73,10 @@ func SetPrintfCallback(callback PrintfCallback) {
 
 func Trace(msg string) {
 	Print(msg)
+}
+
+func Traceln(msg string) {
+	Println(msg)
 }
 
 func Tracef(format string, a ...interface{}) {
