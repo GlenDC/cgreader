@@ -144,18 +144,22 @@ func (ragnarok *Ragnarok) WinConditionCheck() bool {
 		ragnarok.target.y == ragnarok.thor.y
 }
 
-func RunRagnarokProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+func RunRagnarokProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) bool {
 	ragnarok := Ragnarok{}
 	ragnarok.UserInitialize = initialize
 	ragnarok.UserUpdate = update
 	ragnarok.trace = trace
 
-	RunTargetProgram(input, trace, &ragnarok)
+	return RunTargetProgram(input, trace, &ragnarok)
 }
 
 func RunRagnarokPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	var counter int
 	for i := range input {
-		RunRagnarokProgram(input[i], trace, initialize, update)
+		if RunRagnarokProgram(input[i], trace, initialize, update) {
+			counter++
+		}
 		Printf("\n")
 	}
+	ReportTotalResult(counter, len(input))
 }

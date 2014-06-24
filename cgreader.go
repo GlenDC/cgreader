@@ -182,7 +182,7 @@ func RunFunction(function Function) (result bool) {
 	return
 }
 
-func RunProgram(execute Execute, report Report) bool {
+func RunProgram(execute Execute, report Report) (result bool) {
 	ch := make(chan float64)
 	och := make(chan string, buffer)
 	exit := make(chan struct{})
@@ -190,6 +190,7 @@ func RunProgram(execute Execute, report Report) bool {
 
 	output := make([]string, 0)
 
+	result = true
 	start := time.Now()
 	go func() {
 		execute(och)
@@ -216,7 +217,7 @@ func RunProgram(execute Execute, report Report) bool {
 	for active := true; active; {
 		select {
 		case <-error:
-			active = false
+			active, result = false, false
 		case line, ok := <-och:
 			if ok {
 				output = append(output, line)
@@ -233,7 +234,7 @@ func RunProgram(execute Execute, report Report) bool {
 		report(output, t)
 	default:
 	}
-	return true
+	return
 }
 
 func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
@@ -269,16 +270,15 @@ func RunManualProgram(input string, main ProgramMain) {
 func RunManualPrograms(input []string, main ProgramMain) {
 	for i := range input {
 		RunManualProgram(input[i], main)
-		Print("")
+		Println("")
 	}
 }
 
-func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) bool {
+func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) (result bool) {
 	InitializeCGReader()
 
 	ch := GetManualInput(input)
-	var result bool
-	RunProgram(func(output chan string) {
+	result = RunProgram(func(output chan string) {
 		main(ch, output)
 		close(output)
 	}, func(output []string, time float64) {
@@ -290,8 +290,16 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 
 		result = TestOutput(test, output)
 		ReportResult(result, time)
-	})
-	return result
+	}) && result
+	return
+}
+
+func ReportTotalResult(correct, total int) {
+	emoji := ":)"
+	if correct != total {
+		emoji = ":("
+	}
+	Printf("All programs finished. %d/%d programs succeeded %s\n", correct, total, emoji)
 }
 
 func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramMain) {
@@ -301,13 +309,9 @@ func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramM
 			if RunAndValidateManualProgram(input[i], test[i], echo, main) {
 				counter++
 			}
-			Print("")
+			Println("")
 		}
-		emoji := ":)"
-		if counter != len(input) {
-			emoji = ":("
-		}
-		Printf("All programs finished. %d/%d programs succeeded %s\n", counter, len(input), emoji)
+		ReportTotalResult(counter, len(input))
 	}
 }
 
@@ -320,7 +324,7 @@ type TargetProgram interface {
 	WinConditionCheck() bool
 }
 
-func RunTargetProgram(input string, trace bool, program TargetProgram) {
+func RunTargetProgram(input string, trace bool, program TargetProgram) (isOK bool) {
 	InitializeCGReader()
 
 	ch := GetManualInput(input)
@@ -345,25 +349,19 @@ func RunTargetProgram(input string, trace bool, program TargetProgram) {
 
 				if program.WinConditionCheck() {
 					ReportResult(true, duration)
-					active = false
+					active, isOK = false, true
 				} else if program.LoseConditionCheck() {
 					ReportResult(false, duration)
-					active = false
+					active, isOK = false, false
 				}
 
 				time.Sleep(delay)
 			}) == false {
-				return
+				isOK = false
 			}
 		}
 	}
-}
-
-func RunTargetPrograms(input []string, trace bool, program TargetProgram) {
-	for i := range input {
-		RunTargetProgram(input[i], trace, program)
-		Print("")
-	}
+	return
 }
 
 type MapObject interface {
@@ -385,7 +383,7 @@ func DrawMap(width, height int, background string, objects ...MapObject) {
 			}
 			Printf("%s ", c)
 		}
-		Print("")
+		Println("")
 	}
-	Print("")
+	Println("")
 }

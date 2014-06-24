@@ -238,18 +238,22 @@ func (ragnarok *RagnarokGiants) WinConditionCheck() bool {
 	return len(ragnarok.giants) == 0
 }
 
-func RunRagnarokGiantsProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+func RunRagnarokGiantsProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) bool {
 	ragnarok := RagnarokGiants{}
 	ragnarok.UserInitialize = initialize
 	ragnarok.UserUpdate = update
 	ragnarok.trace = trace
 
-	RunTargetProgram(input, trace, &ragnarok)
+	return RunTargetProgram(input, trace, &ragnarok)
 }
 
 func RunRagnarokGiantsPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	var counter int
 	for i := range input {
-		RunRagnarokGiantsProgram(input[i], trace, initialize, update)
+		if RunRagnarokGiantsProgram(input[i], trace, initialize, update) {
+			counter++
+		}
 		Printf("\n")
 	}
+	ReportTotalResult(counter, len(input))
 }
