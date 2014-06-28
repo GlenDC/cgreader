@@ -28,6 +28,8 @@ const (
 	CR    = 0x0D
 )
 
+const PROGRAM_SIZE = 30000
+
 func ParseProgram(input []byte) (string, bool) {
 	var output string
 	var loopStartCounter, loopStopCounter, l, c uint64
@@ -77,6 +79,62 @@ func ParseTargetProgram(input string) (initial, update string, result bool) {
 	return
 }
 
+var programStream, programInput string
+var programBuffer []int64
+var programIndex, streamIndex int
+
+var input <-chan string
+var output chan string
+
+func InitialzeProgram(stream string) {
+	programStream, programIndex, streamIndex = stream, 0, 0
+	programBuffer = make([]int64, PROGRAM_SIZE)
+	programInput = ""
+}
+
+func GetProgramInput() (result int64) {
+	if len(programInput) == 0 {
+		programInput = <-input
+	}
+
+	result = int64(programInput[0])
+	programInput = programInput[1:]
+	return
+}
+
+func RunCommand(cmd rune) {
+	streamIndex++
+	switch cmd {
+	case PI:
+		programIndex++
+	case PD:
+		programIndex--
+	case VI:
+		programBuffer[programIndex]++
+	case VD:
+		programBuffer[programIndex]--
+	case IN:
+		programBuffer[programIndex] = GetProgramInput()
+	case OUT:
+		//TODO: difference between ascii character and number
+		output <- fmt.Sprintf("%d", programBuffer[programIndex])
+	case START:
+		i := strings.Index(programStream[streamIndex:], string(STOP))
+		RunLoop(programStream[streamIndex : i-1])
+		streamIndex = i + 1
+	case STOP:
+		fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.[\n")
+		os.Exit(0)
+	}
+}
+
+func RunLoop(stream string) {
+	var cmd rune
+	for _, cmd = range stream {
+		RunCommand(cmd)
+	}
+}
+
 func main() {
 	arguments := os.Args
 	switch len(arguments) {
@@ -95,11 +153,14 @@ func main() {
 			switch command {
 			case CMD_MANUAL:
 				if main, result := ParseProgram(file); result {
+					InitialzeProgram(main)
 					fmt.Println(main)
 				}
 			case CMD_RAGNAROK:
 				if initial, update, result := ParseTargetProgram(string(file)); result {
+					InitialzeProgram(initial)
 					fmt.Println(initial)
+					InitialzeProgram(update)
 					fmt.Println(update)
 				}
 			default:
