@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 const (
-	SYNOPSIS = "bfreader [command] [program] [input] [output]\n\tcommand: a subcommand that defines the type of program to run\n\tprogram: the path to the brainfuck program file\n\tinput: the path to the input test file\n\toutput: the path to the output test file (optional)"
-	COMMANDS = "manual"
+	SYNOPSIS     = "bfreader [command] [program] [input] [output]\n\tcommand: a subcommand that defines the type of program to run\n\tprogram: the path to the brainfuck program file\n\tinput: the path to the input test file\n\toutput: the path to the output test file (optional)"
+	CMD_MANUAL   = "manual"
+	CMD_RAGNAROK = "ragnarok"
+	SEPERATOR    = "###"
 )
 
 const (
@@ -60,6 +63,20 @@ func ParseProgram(input []byte) (string, bool) {
 	}
 }
 
+func ParseTargetProgram(input string) (initial, update string, result bool) {
+	if index := strings.Index(input, SEPERATOR); index != -1 {
+		if initial, result = ParseProgram([]byte(input[:index-1])); result {
+			update, result = ParseProgram([]byte(input[index+3:]))
+		} else {
+			result = false
+		}
+	} else {
+		fmt.Printf("ERROR! Please seperate your intial and update logic with \"%s\"\n", SEPERATOR)
+		result = false
+	}
+	return
+}
+
 func main() {
 	arguments := os.Args
 	switch len(arguments) {
@@ -73,19 +90,27 @@ func main() {
 		fmt.Printf("ERROR! Please provide the path to an input file...\n%s\n", SYNOPSIS)
 		return
 	default:
-		command := arguments[1]
-		switch command {
-		case "manual":
-			program := arguments[2]
-			if file, err := ioutil.ReadFile(program); err == nil {
-				if pp, ok := ParseProgram(file); ok {
-					fmt.Println(pp)
+		command, program := arguments[1], arguments[2]
+		if file, err := ioutil.ReadFile(program); err == nil {
+			switch command {
+			case CMD_MANUAL:
+				if main, result := ParseProgram(file); result {
+					fmt.Println(main)
 				}
-			} else {
-				fmt.Printf("ERROR! \"%s\" is not recognized as a valid path\n", program)
+			case CMD_RAGNAROK:
+				if initial, update, result := ParseTargetProgram(string(file)); result {
+					fmt.Println(initial)
+					fmt.Println(update)
+				}
+			default:
+				fmt.Printf(
+					"ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s, %s\n",
+					command,
+					CMD_MANUAL,
+					CMD_RAGNAROK)
 			}
-		default:
-			fmt.Printf("ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s\n", command, COMMANDS)
+		} else {
+			fmt.Printf("ERROR! \"%s\" is not recognized as a valid path\n", program)
 		}
 	}
 }
