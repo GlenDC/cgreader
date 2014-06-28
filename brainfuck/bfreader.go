@@ -1,8 +1,8 @@
 package main
 
 import (
-	//"github.com/glendc/cgreader"
 	"fmt"
+	"github.com/glendc/cgreader"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -83,8 +83,8 @@ var programStream, programInput string
 var programBuffer []int64
 var programIndex, streamIndex int
 
-var input <-chan string
-var output chan string
+var inputChannel <-chan string
+var outputChannel chan string
 
 func InitialzeProgram(stream string) {
 	programStream, programIndex, streamIndex = stream, 0, 0
@@ -94,7 +94,7 @@ func InitialzeProgram(stream string) {
 
 func GetProgramInput() (result int64) {
 	if len(programInput) == 0 {
-		programInput = <-input
+		programInput = <-inputChannel
 	}
 
 	result = int64(programInput[0])
@@ -117,7 +117,7 @@ func RunCommand(cmd rune) {
 		programBuffer[programIndex] = GetProgramInput()
 	case OUT:
 		//TODO: difference between ascii character and number
-		output <- fmt.Sprintf("%d", programBuffer[programIndex])
+		outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
 	case START:
 		i := strings.Index(programStream[streamIndex:], string(STOP))
 		RunLoop(programStream[streamIndex : i-1])
@@ -148,20 +148,41 @@ func main() {
 		fmt.Printf("ERROR! Please provide the path to an input file...\n%s\n", SYNOPSIS)
 		return
 	default:
-		command, program := arguments[1], arguments[2]
+		command, program, input := arguments[1], arguments[2], arguments[3]
 		if file, err := ioutil.ReadFile(program); err == nil {
 			switch command {
 			case CMD_MANUAL:
-				if main, result := ParseProgram(file); result {
-					InitialzeProgram(main)
-					fmt.Println(main)
+				if len(arguments) < 5 {
+					fmt.Printf("ERROR! Please provide the path to an output file...\n%s\n", SYNOPSIS)
+				} else {
+					output := arguments[4]
+					if main, result := ParseProgram(file); result {
+						cgreader.RunAndValidateManualProgram(
+							input,
+							output,
+							true, //TODO: add -v flag that defines this parameter
+							func(input <-chan string, output chan string) {
+								inputChannel, outputChannel = input, output
+								InitialzeProgram(main)
+								RunLoop(programStream)
+							})
+					}
 				}
 			case CMD_RAGNAROK:
 				if initial, update, result := ParseTargetProgram(string(file)); result {
-					InitialzeProgram(initial)
-					fmt.Println(initial)
-					InitialzeProgram(update)
-					fmt.Println(update)
+					cgreader.RunRagnarokProgram(
+						input,
+						true, //TODO: add -v flag that defines this parameter,
+						func(input <-chan string) {
+							inputChannel = input
+							InitialzeProgram(initial)
+							RunLoop(programStream)
+							InitialzeProgram(update)
+						},
+						func(input <-chan string, output chan string) {
+							inputChannel, outputChannel = input, output
+							RunLoop(programStream)
+						})
 				}
 			default:
 				fmt.Printf(
