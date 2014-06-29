@@ -28,21 +28,26 @@ const (
 	COUT  = 0x2E
 	START = 0x5B
 	STOP  = 0x5D
+	TO    = 0x3F
+	TL    = 0x21
 	LF    = 0x0A
 	CR    = 0x0D
 	DASH  = 0x2D
+	TIN   = 0x28
+	TOUT  = 0x29
+	TSE   = 0x3A
 )
 
 const PROGRAM_SIZE = 30000
 
-func ParseProgram(input []byte) (string, bool) {
+func ParseProgram(input []byte, trace byte) (string, bool) {
 	var output string
 	var loopStartCounter, loopStopCounter, l, c uint64
 	var cmd byte
 
 	l, c = 1, 1
 
-	for i := range input {
+	for i := 0; i < len(input); i++ {
 		switch cmd = input[i]; cmd {
 		case PI, PD, VI, VD, IN, NOUT, COUT, START, STOP:
 			if cmd == START {
@@ -58,6 +63,43 @@ func ParseProgram(input []byte) (string, bool) {
 			output += string(cmd)
 		case LF, CR:
 			l, c = l+1, 1
+		case TIN:
+			var io, is int
+			io = strings.Index(string(input[i+1:]), string(TOUT))
+			if io != -1 {
+				is = strings.Index(string(input[i+1:io-1]), string(TSE))
+				if is != -1 && io-i <= 14 {
+					var ifi, ila int
+					i++
+
+					if is-i == 1 {
+						ifi = 0
+					} else {
+						fmt.Sscanf(string(input[i:is-1]), "%d", &ifi)
+					}
+
+					if is = is + 1; io-is == 1 {
+						ila = PROGRAM_SIZE - 1
+					} else {
+						fmt.Sscanf(string(input[is:io-1]), "%d", &ila)
+					}
+
+					if trace == TO || trace == TL {
+						output += string(trace)
+						TraceQueue.Push(&QueuedFunction{func() {
+							for i := ifi; i <= ila; i++ {
+								cgreader.Tracef("%d ", programBuffer[i])
+							}
+							cgreader.Traceln("")
+						}})
+					} else {
+						fmt.Printf("ERROR! Parsing failed due to unrecognized trace type \"%d\"\n", trace)
+						return "", false
+					}
+
+					i = io
+				}
+			}
 		}
 		c++
 	}
@@ -72,8 +114,8 @@ func ParseProgram(input []byte) (string, bool) {
 
 func ParseTargetProgram(input string) (initial, update string, result bool) {
 	if index := strings.Index(input, SEPERATOR); index != -1 {
-		if initial, result = ParseProgram([]byte(input[:index-1])); result {
-			update, result = ParseProgram([]byte(input[index+3:]))
+		if initial, result = ParseProgram([]byte(input[:index-1]), TO); result {
+			update, result = ParseProgram([]byte(input[index+3:]), TL)
 		} else {
 			result = false
 		}
@@ -88,9 +130,8 @@ var programStream, programInput string
 var programBuffer []int64
 var programIndex, streamIndex int
 
-type prco func()
-
 var programCommands map[rune]prco
+var TraceQueue Queue
 
 var inputChannel <-chan string
 var outputChannel chan string
@@ -162,17 +203,27 @@ func main() {
 			fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.#[\n")
 			os.Exit(0)
 		}
+		programCommands[TO] = func() {
+			TraceQueue.Pop().excecute()
+		}
+		programCommands[TL] = func() {
+			cmd := TraceQueue.Pop()
+			TraceQueue.Push(cmd)
+			cmd.excecute()
+		}
 
 		command, program, input := arguments[1], arguments[2], arguments[3]
 
 		if file, err := ioutil.ReadFile(program); err == nil {
+			TraceQueue = NewQueue(1)
+
 			switch command {
 			case CMD_MANUAL:
 				if len(arguments) < 5 {
 					fmt.Printf("ERROR! Please provide the path to an output file...\n%s\n", SYNOPSIS)
 				} else {
 					output := arguments[4]
-					if main, result := ParseProgram(file); result {
+					if main, result := ParseProgram(file, TO); result {
 						cgreader.RunAndValidateManualProgram(
 							input,
 							output,
@@ -206,7 +257,6 @@ func main() {
 					case CMD_RAGNAROK_GIANTS:
 						cgreader.RunRagnarokGiantsProgram(input, verbose, initialFunction, updateFunction)
 					}
-
 				}
 			default:
 				fmt.Printf(
