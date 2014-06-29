@@ -21,7 +21,8 @@ const (
 	VI    = 0x2B
 	VD    = 0x2D
 	IN    = 0x2C
-	OUT   = 0x2E
+	NOUT  = 0x23
+	COUT  = 0x2E
 	START = 0x5B
 	STOP  = 0x5D
 	LF    = 0x0A
@@ -39,13 +40,13 @@ func ParseProgram(input []byte) (string, bool) {
 
 	for i := range input {
 		switch cmd = input[i]; cmd {
-		case PI, PD, VI, VD, IN, OUT, START, STOP:
+		case PI, PD, VI, VD, IN, NOUT, COUT, START, STOP:
 			if cmd == START {
 				loopStartCounter++
 			} else if cmd == STOP {
 				loopStopCounter++
 				if loopStopCounter > loopStartCounter {
-					fmt.Printf("ERROR! Parsing failed on Line %d (%d): encountered \"]\" while expecting ><+-,.[\n", l, c)
+					fmt.Printf("ERROR! Parsing failed on Line %d (%d): encountered \"]\" while expecting ><+-,.#[\n", l, c)
 					return "", false
 				}
 			}
@@ -115,15 +116,16 @@ func RunCommand(cmd rune) {
 		programBuffer[programIndex]--
 	case IN:
 		programBuffer[programIndex] = GetProgramInput()
-	case OUT:
-		//TODO: difference between ascii character and number
+	case NOUT:
 		outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
+	case COUT:
+		outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
 	case START:
 		i := strings.Index(programStream[streamIndex:], string(STOP))
 		RunLoop(programStream[streamIndex : i-1])
 		streamIndex = i + 1
 	case STOP:
-		fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.[\n")
+		fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.#[\n")
 		os.Exit(0)
 	}
 }
