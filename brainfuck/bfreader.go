@@ -88,6 +88,10 @@ var programStream, programInput string
 var programBuffer []int64
 var programIndex, streamIndex int
 
+type prco func()
+
+var programCommands map[rune]prco
+
 var inputChannel <-chan string
 var outputChannel chan string
 
@@ -107,37 +111,11 @@ func GetProgramInput() (result int64) {
 	return
 }
 
-func RunCommand(cmd rune) {
-	streamIndex++
-	switch cmd {
-	case PI:
-		programIndex++
-	case PD:
-		programIndex--
-	case VI:
-		programBuffer[programIndex]++
-	case VD:
-		programBuffer[programIndex]--
-	case IN:
-		programBuffer[programIndex] = GetProgramInput()
-	case NOUT:
-		outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
-	case COUT:
-		outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
-	case START:
-		i := strings.Index(programStream[streamIndex:], string(STOP))
-		RunLoop(programStream[streamIndex : i-1])
-		streamIndex = i + 1
-	case STOP:
-		fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.#[\n")
-		os.Exit(0)
-	}
-}
-
 func RunLoop(stream string) {
 	var cmd rune
 	for _, cmd = range stream {
-		RunCommand(cmd)
+		streamIndex++
+		programCommands[cmd]()
 	}
 }
 
@@ -163,7 +141,30 @@ func main() {
 		fmt.Printf("ERROR! Please provide the path to an input file...\n%s\n", SYNOPSIS)
 		return
 	default:
+		programCommands = make(map[rune]prco)
+		programCommands[PI] = func() { programIndex++ }
+		programCommands[PD] = func() { programIndex-- }
+		programCommands[VI] = func() { programBuffer[programIndex]++ }
+		programCommands[VD] = func() { programBuffer[programIndex]-- }
+		programCommands[IN] = func() { programBuffer[programIndex] = GetProgramInput() }
+		programCommands[NOUT] = func() {
+			outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
+		}
+		programCommands[COUT] = func() {
+			outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
+		}
+		programCommands[START] = func() {
+			i := strings.Index(programStream[streamIndex:], string(STOP))
+			RunLoop(programStream[streamIndex : i-1])
+			streamIndex = i + 1
+		}
+		programCommands[STOP] = func() {
+			fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.#[\n")
+			os.Exit(0)
+		}
+
 		command, program, input := arguments[1], arguments[2], arguments[3]
+
 		if file, err := ioutil.ReadFile(program); err == nil {
 			switch command {
 			case CMD_MANUAL:
