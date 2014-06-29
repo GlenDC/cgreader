@@ -10,10 +10,12 @@ import (
 )
 
 const (
-	SYNOPSIS     = "bfreader [command] [program] [input] [output]\n\tcommand: a subcommand that defines the type of program to run\n\tprogram: the path to the brainfuck program file\n\tinput: the path to the input test file\n\toutput: the path to the output test file (optional)"
-	CMD_MANUAL   = "manual"
-	CMD_RAGNAROK = "ragnarok"
-	SEPERATOR    = "###"
+	SYNOPSIS            = "bfreader [command] [program] [input] [output]\n\tcommand: a subcommand that defines the type of program to run\n\tprogram: the path to the brainfuck program file\n\tinput: the path to the input test file\n\toutput: the path to the output test file (optional)"
+	CMD_MANUAL          = "manual"
+	CMD_KIRK            = "kirk"
+	CMD_RAGNAROK        = "ragnarok"
+	CMD_RAGNAROK_GIANTS = "ragnarokGiants"
+	SEPERATOR           = "###"
 )
 
 const (
@@ -181,7 +183,7 @@ func main() {
 							})
 					}
 				}
-			case CMD_RAGNAROK:
+			case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
 				if initial, update, result := ParseTargetProgram(string(file)); result {
 					initialFunction := func(input <-chan string) {
 						inputChannel = input
@@ -196,17 +198,23 @@ func main() {
 					}
 
 					switch command {
+					case CMD_KIRK:
+						cgreader.RunKirkProgram(input, verbose, initialFunction, updateFunction)
 					case CMD_RAGNAROK:
 						cgreader.RunRagnarokProgram(input, verbose, initialFunction, updateFunction)
+					case CMD_RAGNAROK_GIANTS:
+						cgreader.RunRagnarokGiantsProgram(input, verbose, initialFunction, updateFunction)
 					}
 
 				}
 			default:
 				fmt.Printf(
-					"ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s, %s\n",
+					"ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s, %s, %s, %s\n",
 					command,
 					CMD_MANUAL,
-					CMD_RAGNAROK)
+					CMD_KIRK,
+					CMD_RAGNAROK,
+					CMD_RAGNAROK_GIANTS)
 			}
 		} else {
 			fmt.Printf("ERROR! \"%s\" is not recognized as a valid path\n", program)
