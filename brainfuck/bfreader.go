@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"github.com/glendc/cgreader"
 	"io/ioutil"
 	"os"
@@ -183,19 +183,23 @@ func main() {
 				}
 			case CMD_RAGNAROK:
 				if initial, update, result := ParseTargetProgram(string(file)); result {
-					cgreader.RunRagnarokProgram(
-						input,
-						verbose,
-						func(input <-chan string) {
-							inputChannel = input
-							InitialzeProgram(initial)
-							RunLoop(programStream)
-							InitialzeProgram(update)
-						},
-						func(input <-chan string, output chan string) {
-							inputChannel, outputChannel = input, output
-							RunLoop(programStream)
-						})
+					initialFunction := func(input <-chan string) {
+						inputChannel = input
+						InitialzeProgram(initial)
+						RunLoop(programStream)
+						InitialzeProgram(update)
+					}
+
+					updateFunction := func(input <-chan string, output chan string) {
+						inputChannel, outputChannel = input, output
+						RunLoop(programStream)
+					}
+
+					switch command {
+					case CMD_RAGNAROK:
+						cgreader.RunRagnarokProgram(input, verbose, initialFunction, updateFunction)
+					}
+
 				}
 			default:
 				fmt.Printf(
