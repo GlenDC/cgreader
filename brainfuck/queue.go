@@ -2,7 +2,7 @@ package main
 
 // Original implementation by @moraes (https://gist.github.com/moraes/2141121)
 
-type prco func()
+type prco func(int)
 
 type QueuedFunction struct {
 	excecute prco

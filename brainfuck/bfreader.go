@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/glendc/cgreader"
 	"io/ioutil"
@@ -65,9 +64,9 @@ func ParseProgram(input []byte, trace byte) (string, bool) {
 			l, c = l+1, 1
 		case TIN:
 			var io, is int
-			io = i+1+strings.Index(string(input[i+1:]), string(TOUT))
+			io = i + 1 + strings.Index(string(input[i+1:]), string(TOUT))
 			if io != i {
-				is = i+1+strings.Index(string(input[i+1:io-1]), string(TSE))
+				is = i + 1 + strings.Index(string(input[i+1:io-1]), string(TSE))
 				if is != i && io-i <= 14 {
 					var ifi, ila int
 					i++
@@ -86,7 +85,7 @@ func ParseProgram(input []byte, trace byte) (string, bool) {
 
 					if trace == TO || trace == TL {
 						output += string(trace)
-						TraceQueue.Push(&QueuedFunction{func() {
+						TraceQueue.Push(&QueuedFunction{func(int) {
 							cgreader.Tracef("Tracing from %d to %d.\n", ifi, ila)
 							for i := ifi; i <= ila; i++ {
 								cgreader.Tracef("%d ", programBuffer[i])
@@ -129,7 +128,7 @@ func ParseTargetProgram(input string) (initial, update string, result bool) {
 
 var programStream, programInput string
 var programBuffer []int64
-var programIndex, streamIndex int
+var programIndex int
 
 var programCommands map[rune]prco
 var TraceQueue Queue
@@ -138,7 +137,7 @@ var inputChannel <-chan string
 var outputChannel chan string
 
 func InitialzeProgram(stream string) {
-	programStream, programIndex, streamIndex = stream, 0, 0
+	programStream, programIndex = stream, 0
 	programBuffer = make([]int64, PROGRAM_SIZE)
 	programInput = ""
 }
@@ -153,24 +152,37 @@ func GetProgramInput() (result int64) {
 	return
 }
 
-func RunLoop(stream string) {
+func RunBrainfuckLoop(stream string) {
 	var cmd rune
-	for _, cmd = range stream {
-		streamIndex++
-		programCommands[cmd]()
+	var i int
+	for programBuffer[programIndex] != 0 {
+		for i, cmd = range stream {
+			programCommands[cmd](i)
+		}
+	}
+}
+
+func RunBrainfuckStream(stream string) {
+	var cmd rune
+	var i int
+	for i, cmd = range stream {
+		programCommands[cmd](i)
 	}
 }
 
 func main() {
+	verbose := false
+
 	var arguments []string
 	for _, argument := range os.Args {
 		if argument[0] != DASH {
 			arguments = append(arguments, argument)
+		} else {
+			if argument == "-v" || argument == "--verbose" {
+				verbose = true
+			}
 		}
 	}
-
-	flag.Parse()
-	verbose := *flag.Bool("v", false, "verbose")
 
 	switch len(arguments) {
 	case 1:
@@ -184,33 +196,65 @@ func main() {
 		return
 	default:
 		programCommands = make(map[rune]prco)
-		programCommands[PI] = func() { programIndex++ }
-		programCommands[PD] = func() { programIndex-- }
-		programCommands[VI] = func() { programBuffer[programIndex]++ }
-		programCommands[VD] = func() { programBuffer[programIndex]-- }
-		programCommands[IN] = func() { programBuffer[programIndex] = GetProgramInput() }
-		programCommands[NOUT] = func() {
+		programCommands[PI] = func(int) { programIndex++ }
+		programCommands[PD] = func(int) { programIndex-- }
+		programCommands[VI] = func(int) { programBuffer[programIndex]++ }
+		programCommands[VD] = func(int) { programBuffer[programIndex]-- }
+		programCommands[IN] = func(int) { programBuffer[programIndex] = GetProgramInput() }
+		programCommands[NOUT] = func(int) {
 			outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
 		}
-		programCommands[COUT] = func() {
+		programCommands[COUT] = func(int) {
 			outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
 		}
-		programCommands[START] = func() {
-			i := strings.Index(programStream[streamIndex:], string(STOP))
-			RunLoop(programStream[streamIndex : i-1])
-			streamIndex = i + 1
+		programCommands[START] = func(streamIndex int) {
+			i := strings.LastIndex(programStream, string(STOP))
+			i += streamIndex + 1
+
+			stream := programStream[streamIndex+1 : i-1]
+			var startCounter, stopCounter int
+			fmt.Println(string(programStream))
+			fmt.Println("First...", string(stream))
+
+			nextStream := programStream[len(stream)+2:]
+
+			i = strings.IndexFunc(string(stream), func(c rune) bool {
+				if c == STOP {
+					if startCounter == stopCounter {
+						return true
+					}
+					stopCounter++
+				} else if c == START {
+					startCounter++
+				}
+				return false
+			})
+
+			if i != -1 {
+				stream = stream[:i]
+				i += streamIndex + 1
+				nextStream = programStream[i+1:]
+				fmt.Println("Second...", string(stream))
+			}
+
+			fmt.Println("Nextstream: ", string(nextStream))
+
+			programStream = stream
+			RunBrainfuckLoop(stream)
+			programStream = nextStream
+
 		}
-		programCommands[STOP] = func() {
+		programCommands[STOP] = func(int) {
 			fmt.Printf("ERROR! Parsing failed: encountered \"]\" while expecting ><+-,.#[\n")
 			os.Exit(0)
 		}
-		programCommands[TO] = func() {
-			TraceQueue.Pop().excecute()
+		programCommands[TO] = func(i int) {
+			TraceQueue.Pop().excecute(i)
 		}
-		programCommands[TL] = func() {
+		programCommands[TL] = func(i int) {
 			cmd := TraceQueue.Pop()
 			TraceQueue.Push(cmd)
-			cmd.excecute()
+			cmd.excecute(i)
 		}
 
 		command, program, input := arguments[1], arguments[2], arguments[3]
@@ -232,7 +276,7 @@ func main() {
 							func(input <-chan string, output chan string) {
 								inputChannel, outputChannel = input, output
 								InitialzeProgram(main)
-								RunLoop(programStream)
+								RunBrainfuckStream(programStream)
 							})
 					}
 				}
@@ -241,13 +285,13 @@ func main() {
 					initialFunction := func(input <-chan string) {
 						inputChannel = input
 						InitialzeProgram(initial)
-						RunLoop(programStream)
+						RunBrainfuckStream(programStream)
 						InitialzeProgram(update)
 					}
 
 					updateFunction := func(input <-chan string, output chan string) {
 						inputChannel, outputChannel = input, output
-						RunLoop(programStream)
+						RunBrainfuckStream(programStream)
 					}
 
 					switch command {
