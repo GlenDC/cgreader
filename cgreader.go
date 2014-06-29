@@ -103,7 +103,7 @@ func GetManualInput(input string) <-chan string {
 		go func() {
 			for _, line := range lines {
 				if line != "" {
-					ch <- line
+					ch <- fmt.Sprintf("%s\n", line)
 				}
 			}
 			close(ch)
