@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	"github.com/glendc/cgreader"
 	"io/ioutil"
 	"os"
@@ -27,6 +28,7 @@ const (
 	STOP  = 0x5D
 	LF    = 0x0A
 	CR    = 0x0D
+	DASH  = 0x2D
 )
 
 const PROGRAM_SIZE = 30000
@@ -138,7 +140,16 @@ func RunLoop(stream string) {
 }
 
 func main() {
-	arguments := os.Args
+	var arguments []string
+	for _, argument := range os.Args {
+		if argument[0] != DASH {
+			arguments = append(arguments, argument)
+		}
+	}
+
+	flag.Parse()
+	verbose := *flag.Bool("v", false, "verbose")
+
 	switch len(arguments) {
 	case 1:
 		fmt.Printf("ERROR! Please provide a command\n%s\n", SYNOPSIS)
@@ -162,7 +173,7 @@ func main() {
 						cgreader.RunAndValidateManualProgram(
 							input,
 							output,
-							true, //TODO: add -v flag that defines this parameter
+							verbose,
 							func(input <-chan string, output chan string) {
 								inputChannel, outputChannel = input, output
 								InitialzeProgram(main)
@@ -174,7 +185,7 @@ func main() {
 				if initial, update, result := ParseTargetProgram(string(file)); result {
 					cgreader.RunRagnarokProgram(
 						input,
-						true, //TODO: add -v flag that defines this parameter,
+						verbose,
 						func(input <-chan string) {
 							inputChannel = input
 							InitialzeProgram(initial)
