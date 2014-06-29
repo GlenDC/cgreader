@@ -65,10 +65,10 @@ func ParseProgram(input []byte, trace byte) (string, bool) {
 			l, c = l+1, 1
 		case TIN:
 			var io, is int
-			io = strings.Index(string(input[i+1:]), string(TOUT))
-			if io != -1 {
-				is = strings.Index(string(input[i+1:io-1]), string(TSE))
-				if is != -1 && io-i <= 14 {
+			io = i+1+strings.Index(string(input[i+1:]), string(TOUT))
+			if io != i {
+				is = i+1+strings.Index(string(input[i+1:io-1]), string(TSE))
+				if is != i && io-i <= 14 {
 					var ifi, ila int
 					i++
 
@@ -87,6 +87,7 @@ func ParseProgram(input []byte, trace byte) (string, bool) {
 					if trace == TO || trace == TL {
 						output += string(trace)
 						TraceQueue.Push(&QueuedFunction{func() {
+							cgreader.Tracef("Tracing from %d to %d.\n", ifi, ila)
 							for i := ifi; i <= ila; i++ {
 								cgreader.Tracef("%d ", programBuffer[i])
 							}
@@ -215,7 +216,7 @@ func main() {
 		command, program, input := arguments[1], arguments[2], arguments[3]
 
 		if file, err := ioutil.ReadFile(program); err == nil {
-			TraceQueue = NewQueue(1)
+			TraceQueue = *NewQueue(1)
 
 			switch command {
 			case CMD_MANUAL:

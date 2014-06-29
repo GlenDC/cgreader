@@ -17,8 +17,12 @@ type Queue struct {
 	count int
 }
 
-func NewQueue(size int) Queue {
-	return Queue{nil, size, 0, 0, 0}
+// NewQueue returns a new queue with the given initial size.
+func NewQueue(size int) *Queue {
+	return &Queue{
+		nodes: make([]*QueuedFunction, size),
+		size:  size,
+	}
 }
 
 // Push adds a node to the queue.
