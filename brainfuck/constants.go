@@ -19,12 +19,10 @@ const (
 	COUT  = 0x2E
 	START = 0x5B
 	STOP  = 0x5D
+	TRACE = 0x3F
 	LF    = 0x0A
 	CR    = 0x0D
 	DASH  = 0x2D
-	TIN   = 0x28
-	TOUT  = 0x29
-	TSE   = 0x3A
 )
 
 const PROGRAM_SIZE = 30000

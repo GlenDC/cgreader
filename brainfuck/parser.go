@@ -83,37 +83,10 @@ func RecursiveParser(command *Command) {
 		case LF, CR:
 			lineCounter, characterCounter = lineCounter+1, 0
 
-		case TIN:
-			var io, is int
-			io = currentStreamIndex + 1 + strings.Index(string(rawProgramStream[currentStreamIndex+1:]), string(TOUT))
-			if io != currentStreamIndex {
-				is = currentStreamIndex + 1 + strings.Index(string(rawProgramStream[currentStreamIndex+1:io-1]), string(TSE))
-				if is != currentStreamIndex && io-currentStreamIndex <= 14 {
-					var ifi, ila int64
-					currentStreamIndex++
-
-					if is-currentStreamIndex == 1 {
-						ifi = 0
-					} else {
-						fmt.Sscanf(string(rawProgramStream[currentStreamIndex:is-1]), "%d", &ifi)
-					}
-
-					if is = is + 1; io-is == 1 {
-						ila = PROGRAM_SIZE - 1
-					} else {
-						fmt.Sscanf(string(rawProgramStream[is:io-1]), "%d", &ila)
-					}
-
-					command.add(&Command{func([]*Command) {
-						for index := ifi; index <= ila; index++ {
-							cgreader.Tracef("%d ", programBuffer[index])
-						}
-						cgreader.Traceln("")
-					}, nil})
-
-					currentStreamIndex = io
-				}
-			}
+		case TRACE:
+			command.add(&Command{func([]*Command) {
+				cgreader.Tracef("[%d] = %d\n", programIndex, programBuffer[programIndex])
+			}, nil})
 		}
 	}
 }
