@@ -1,115 +1,34 @@
 package main
 
-import (
-	"fmt"
-	"github.com/glendc/cgreader"
-)
+type CommandFunction func([]*Command)
 
-type Command interface {
-	add(Command)
-	run()
+type Command struct {
+	run      CommandFunction
+	children []*Command
 }
 
-// >
-type AddressIncrementCommand struct{}
-
-func (command AddressIncrementCommand) add(Command) {}
-func (command AddressIncrementCommand) run() {
-	programIndex++
+func (command *Command) excecute() {
+	command.run(command.children)
 }
 
-// <
-type AddressDecrementCommand struct{}
-
-func (command AddressDecrementCommand) add(Command) {}
-func (command AddressDecrementCommand) run() {
-	programIndex--
+func (command *Command) add(cmd *Command) {
+	command.children = append(command.children, cmd)
 }
 
-// +
-type ValueIncrementCommand struct{}
-
-func (command ValueIncrementCommand) add(Command) {}
-func (command ValueIncrementCommand) run() {
-	programBuffer[programIndex]++
-	fmt.Println("Value Increment...")
-}
-
-// -
-type ValueDecrementCommand struct{}
-
-func (command ValueDecrementCommand) add(Command) {}
-func (command ValueDecrementCommand) run() {
-	programBuffer[programIndex]--
-}
-
-// ,
-type InputCommand struct{}
-
-func (command InputCommand) add(Command) {}
-func (command InputCommand) run() {
-	if len(programInput) == 0 {
-		programInput = []byte(<-inputChannel)
-	}
-
-	programBuffer[programIndex] = int64(programInput[0])
-	programInput = programInput[1:]
-}
-
-// .
-type NumericalOutputCommand struct{}
-
-func (command NumericalOutputCommand) add(Command) {}
-func (command NumericalOutputCommand) run() {
-	outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
-}
-
-// #
-type AlfabeticalOutputCommand struct{}
-
-func (command AlfabeticalOutputCommand) add(Command) {}
-func (command AlfabeticalOutputCommand) run() {
-	fmt.Println("Alpha output...")
-	outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
-}
-
-// ?
-type TraceCommand struct{ startIndex, stopIndex int64 }
-
-func (command TraceCommand) add(Command) {}
-func (command TraceCommand) run() {
-	for index := command.startIndex; index <= command.stopIndex; index++ {
-		cgreader.Tracef("%d ", programBuffer[index])
-	}
-	cgreader.Traceln("")
-}
-
-// Loop
-type LoopingGroup struct{ commands []Command }
-
-func (command LoopingGroup) add(cmd Command) {
-	fmt.Sprintf("Added looping node... length is now %d\n", len(command.commands))
-	command.commands = append(command.commands, cmd)
-}
-func (command LoopingGroup) run() {
-	for programBuffer[programIndex] != 0 {
-		var i int
-		for i = range command.commands {
-			command.commands[i].run()
+func CreateLinearGroup() *Command {
+	return &Command{func(commands []*Command) {
+		for _, child := range commands {
+			child.excecute()
 		}
-	}
+	}, nil}
 }
 
-type LinearGroup struct{ commands []Command }
-
-func (command LinearGroup) add(cmd Command) {
-	command.commands = append(command.commands, cmd)
-	fmt.Sprintf("Added Linear node... length is now %d\n", len(command.commands))
-}
-func (command LinearGroup) run() {
-	var i int
-	fmt.Println("Program Start...")
-	for i = range command.commands {
-		command.commands[i].run()
-	}
+func CreateLoopGroup() *Command {
+	return &Command{func(commands []*Command) {
+		for programBuffer[programIndex] != 0 {
+			for _, child := range commands {
+				child.excecute()
+			}
+		}
+	}, nil}
 }

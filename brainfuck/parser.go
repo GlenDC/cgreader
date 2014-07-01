@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/glendc/cgreader"
 	"strings"
 )
 
@@ -10,39 +11,57 @@ var currentStreamIndex int
 var lineCounter, characterCounter, startLoopCounter, stopLoopCounter uint64
 var streamIsValid bool
 
-func RecursiveParser(command Command) Command {
+func RecursiveParser(command *Command) {
 	for ; streamIsValid && currentStreamIndex < len(rawProgramStream); currentStreamIndex++ {
 		characterCounter++
 
 		switch rawProgramStream[currentStreamIndex] {
 		case PI:
-			command.add(Command(AddressIncrementCommand{}))
+			command.add(&Command{func([]*Command) {
+				programIndex++
+			}, nil})
 
 		case PD:
-			command.add(Command(AddressDecrementCommand{}))
+			command.add(&Command{func([]*Command) {
+				programIndex--
+			}, nil})
 
 		case VI:
-			command.add(Command(ValueIncrementCommand{}))
-			fmt.Printf("Lenght is now: %d\n", len(command.(LinearGroup).commands))
+			command.add(&Command{func([]*Command) {
+				programBuffer[programIndex]++
+			}, nil})
 
 		case VD:
-			command.add(Command(ValueDecrementCommand{}))
+			command.add(&Command{func([]*Command) {
+				programBuffer[programIndex]--
+			}, nil})
 
 		case IN:
-			command.add(Command(InputCommand{}))
+			command.add(&Command{func([]*Command) {
+				if len(programInput) == 0 {
+					programInput = []byte(<-inputChannel)
+				}
+
+				programBuffer[programIndex] = int64(programInput[0])
+				programInput = programInput[1:]
+			}, nil})
 
 		case NOUT:
-			command.add(Command(NumericalOutputCommand{}))
+			command.add(&Command{func([]*Command) {
+				outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
+			}, nil})
 
 		case COUT:
-			command.add(Command(AlfabeticalOutputCommand{}))
+			command.add(&Command{func([]*Command) {
+				outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
+			}, nil})
 
 		case START:
 			startLoopCounter++
 			currentStreamIndex++
-			loop := LinearGroup{}
-			baseCommand := RecursiveParser(Command(loop))
-			loop = baseCommand.(LinearGroup)
+
+			loop := CreateLoopGroup()
+			RecursiveParser(loop)
 			command.add(loop)
 
 		case STOP:
@@ -53,7 +72,7 @@ func RecursiveParser(command Command) Command {
 
 			stopLoopCounter++
 			currentStreamIndex++
-			return command
+			return
 
 		case LF, CR:
 			lineCounter, characterCounter = lineCounter+1, 0
@@ -79,14 +98,18 @@ func RecursiveParser(command Command) Command {
 						fmt.Sscanf(string(rawProgramStream[is:io-1]), "%d", &ila)
 					}
 
-					command.add(TraceCommand{ifi, ila})
+					command.add(&Command{func([]*Command) {
+						for index := ifi; index <= ila; index++ {
+							cgreader.Tracef("%d ", programBuffer[index])
+						}
+						cgreader.Traceln("")
+					}, nil})
 
 					currentStreamIndex = io
 				}
 			}
 		}
 	}
-	return command
 }
 
 func InitializeParser(input []byte) {
@@ -95,34 +118,27 @@ func InitializeParser(input []byte) {
 	streamIsValid = true
 }
 
-func ParseLinearProgram(input []byte) *LinearGroup {
+func ParseLinearProgram(input []byte) *Command {
 	InitializeParser(input)
-	command := RecursiveParser(Command(LinearGroup{}))
-	if program, ok := command.(LinearGroup); ok {
-		fmt.Println(len(program.commands))
-		return &program
-	} else {
-		return nil
-	}
+	command := CreateLinearGroup()
+	RecursiveParser(command)
+	return command
 }
 
-func ParseLoopingProgram(input []byte) *LoopingGroup {
+func ParseLoopingProgram(input []byte) *Command {
 	InitializeParser(input)
-	command := RecursiveParser(Command(LoopingGroup{}))
-	if program, ok := command.(LoopingGroup); ok {
-		return &program
-	} else {
-		return nil
-	}
+	command := CreateLoopGroup()
+	RecursiveParser(command)
+	return command
 }
 
-func ParseManualProgram(stream []byte) (*LinearGroup, bool) {
+func ParseManualProgram(stream []byte) (*Command, bool) {
 	lineCounter, characterCounter = 0, 0
 	program := ParseLinearProgram(stream)
 	return program, streamIsValid
 }
 
-func ParseTargetProgram(stream []byte) (initial *LinearGroup, update *LoopingGroup, result bool) {
+func ParseTargetProgram(stream []byte) (initial, update *Command, result bool) {
 	lineCounter, characterCounter = 0, 0
 	if index := strings.Index(string(stream), SEPERATOR); index != -1 {
 		if initial = ParseLinearProgram(stream[:index-1]); streamIsValid {

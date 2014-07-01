@@ -63,7 +63,7 @@ func main() {
 							isVerbose,
 							func(input <-chan string, output chan string) {
 								inputChannel, outputChannel = input, output
-								main.run()
+								main.excecute()
 							})
 					}
 				}
@@ -73,12 +73,12 @@ func main() {
 
 					initialFunction := func(input <-chan string) {
 						inputChannel = input
-						initial.run()
+						initial.excecute()
 					}
 
 					updateFunction := func(input <-chan string, output chan string) {
 						inputChannel, outputChannel = input, output
-						update.run()
+						update.excecute()
 					}
 
 					switch command {
