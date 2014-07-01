@@ -7,8 +7,10 @@ import (
 	"os"
 )
 
+type brainfuck_t int32
+
 var programInput []byte
-var programBuffer []int64
+var programBuffer []brainfuck_t
 var programIndex int
 
 var isVerbose bool
@@ -20,7 +22,7 @@ var outputIsAvailable, inputIsAvailable bool
 
 func InitializeProgram() {
 	programIndex = 0
-	programBuffer = make([]int64, PROGRAM_SIZE)
+	programBuffer = make([]brainfuck_t, PROGRAM_SIZE)
 }
 
 func main() {

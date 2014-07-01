@@ -43,7 +43,7 @@ func RecursiveParser(command *Command) {
 						programInput = []byte(<-inputChannel)
 					}
 
-					programBuffer[programIndex] = int64(programInput[0])
+					programBuffer[programIndex] = brainfuck_t(programInput[0])
 					programInput = programInput[1:]
 				}
 			}, nil})
