@@ -188,7 +188,7 @@ func RunProgram(execute Execute, report Report) (result bool) {
 	exit := make(chan struct{})
 	error := make(chan struct{})
 
-	output := make([]string, 0)
+	var raw_output []byte
 
 	result = true
 	start := time.Now()
@@ -218,9 +218,9 @@ func RunProgram(execute Execute, report Report) (result bool) {
 		select {
 		case <-error:
 			active, result = false, false
-		case line, ok := <-och:
+		case user_output, ok := <-och:
 			if ok {
-				output = append(output, line)
+				raw_output = append(raw_output, []byte(user_output)...)
 			} else {
 				active = false
 			}
@@ -231,7 +231,7 @@ func RunProgram(execute Execute, report Report) (result bool) {
 
 	select {
 	case t := <-ch:
-		report(output, t)
+		report(strings.Split(string(raw_output), "\n"), t)
 	default:
 	}
 	return

@@ -16,6 +16,8 @@ var isVerbose bool
 var inputChannel <-chan string
 var outputChannel chan string
 
+var outputIsAvailable, inputIsAvailable bool
+
 func InitializeProgram() {
 	programIndex = 0
 	programBuffer = make([]int64, PROGRAM_SIZE)
@@ -63,6 +65,7 @@ func main() {
 							isVerbose,
 							func(input <-chan string, output chan string) {
 								inputChannel, outputChannel = input, output
+								inputIsAvailable, outputIsAvailable = true, true
 								main.excecute()
 							})
 					}
@@ -73,11 +76,13 @@ func main() {
 
 					initialFunction := func(input <-chan string) {
 						inputChannel = input
+						inputIsAvailable, outputIsAvailable = true, false
 						initial.excecute()
 					}
 
 					updateFunction := func(input <-chan string, output chan string) {
 						inputChannel, outputChannel = input, output
+						inputIsAvailable, outputIsAvailable = true, true
 						update.excecute()
 					}
 

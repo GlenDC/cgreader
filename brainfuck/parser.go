@@ -38,22 +38,28 @@ func RecursiveParser(command *Command) {
 
 		case IN:
 			command.add(&Command{func([]*Command) {
-				if len(programInput) == 0 {
-					programInput = []byte(<-inputChannel)
-				}
+				if inputIsAvailable {
+					if len(programInput) == 0 {
+						programInput = []byte(<-inputChannel)
+					}
 
-				programBuffer[programIndex] = int64(programInput[0])
-				programInput = programInput[1:]
+					programBuffer[programIndex] = int64(programInput[0])
+					programInput = programInput[1:]
+				}
 			}, nil})
 
 		case NOUT:
 			command.add(&Command{func([]*Command) {
-				outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
+				if outputIsAvailable {
+					outputChannel <- fmt.Sprintf("%d", programBuffer[programIndex])
+				}
 			}, nil})
 
 		case COUT:
 			command.add(&Command{func([]*Command) {
-				outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
+				if outputIsAvailable {
+					outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
+				}
 			}, nil})
 
 		case START:
@@ -125,13 +131,6 @@ func ParseLinearProgram(input []byte) *Command {
 	return command
 }
 
-func ParseLoopingProgram(input []byte) *Command {
-	InitializeParser(input)
-	command := CreateLoopGroup()
-	RecursiveParser(command)
-	return command
-}
-
 func ParseManualProgram(stream []byte) (*Command, bool) {
 	lineCounter, characterCounter = 0, 0
 	program := ParseLinearProgram(stream)
@@ -142,7 +141,7 @@ func ParseTargetProgram(stream []byte) (initial, update *Command, result bool) {
 	lineCounter, characterCounter = 0, 0
 	if index := strings.Index(string(stream), SEPERATOR); index != -1 {
 		if initial = ParseLinearProgram(stream[:index-1]); streamIsValid {
-			update = ParseLoopingProgram(stream[index+3:])
+			update = ParseLinearProgram(stream[index+3:])
 			result = streamIsValid
 		} else {
 			result = false
