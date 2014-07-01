@@ -26,3 +26,5 @@ const (
 )
 
 const PROGRAM_SIZE = 30000
+
+const EOF = -1

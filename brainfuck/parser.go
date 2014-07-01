@@ -45,6 +45,8 @@ func RecursiveParser(command *Command) {
 
 					programBuffer[programIndex] = brainfuck_t(programInput[0])
 					programInput = programInput[1:]
+				} else {
+					programBuffer[programIndex] = EOF
 				}
 			}, nil})
 
