@@ -10,7 +10,7 @@ var currentStreamIndex int
 var lineCounter, characterCounter, startLoopCounter, stopLoopCounter uint64
 var streamIsValid bool
 
-func RecursiveParser(command Command) {
+func RecursiveParser(command Command) Command {
 	for ; streamIsValid && currentStreamIndex < len(rawProgramStream); currentStreamIndex++ {
 		characterCounter++
 
@@ -22,8 +22,8 @@ func RecursiveParser(command Command) {
 			command.add(Command(AddressDecrementCommand{}))
 
 		case VI:
-			fmt.Println("adding value increment shit")
 			command.add(Command(ValueIncrementCommand{}))
+			fmt.Printf("Lenght is now: %d\n", len(command.(LinearGroup).commands))
 
 		case VD:
 			command.add(Command(ValueDecrementCommand{}))
@@ -41,7 +41,8 @@ func RecursiveParser(command Command) {
 			startLoopCounter++
 			currentStreamIndex++
 			loop := LinearGroup{}
-			RecursiveParser(Command(loop))
+			baseCommand := RecursiveParser(Command(loop))
+			loop = baseCommand.(LinearGroup)
 			command.add(loop)
 
 		case STOP:
@@ -52,7 +53,7 @@ func RecursiveParser(command Command) {
 
 			stopLoopCounter++
 			currentStreamIndex++
-			return
+			return command
 
 		case LF, CR:
 			lineCounter, characterCounter = lineCounter+1, 0
@@ -85,6 +86,7 @@ func RecursiveParser(command Command) {
 			}
 		}
 	}
+	return command
 }
 
 func InitializeParser(input []byte) {
@@ -95,16 +97,23 @@ func InitializeParser(input []byte) {
 
 func ParseLinearProgram(input []byte) *LinearGroup {
 	InitializeParser(input)
-	program := LinearGroup{}
-	RecursiveParser(Command(program))
-	return &program
+	command := RecursiveParser(Command(LinearGroup{}))
+	if program, ok := command.(LinearGroup); ok {
+		fmt.Println(len(program.commands))
+		return &program
+	} else {
+		return nil
+	}
 }
 
 func ParseLoopingProgram(input []byte) *LoopingGroup {
 	InitializeParser(input)
-	program := LoopingGroup{}
-	RecursiveParser(Command(program))
-	return &program
+	command := RecursiveParser(Command(LoopingGroup{}))
+	if program, ok := command.(LoopingGroup); ok {
+		return &program
+	} else {
+		return nil
+	}
 }
 
 func ParseManualProgram(stream []byte) (*LinearGroup, bool) {

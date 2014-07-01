@@ -32,6 +32,7 @@ type ValueIncrementCommand struct{}
 func (command ValueIncrementCommand) add(Command) {}
 func (command ValueIncrementCommand) run() {
 	programBuffer[programIndex]++
+	fmt.Println("Value Increment...")
 }
 
 // -
@@ -68,6 +69,7 @@ type AlfabeticalOutputCommand struct{}
 
 func (command AlfabeticalOutputCommand) add(Command) {}
 func (command AlfabeticalOutputCommand) run() {
+	fmt.Println("Alpha output...")
 	outputChannel <- fmt.Sprintf("%s", string(programBuffer[programIndex]))
 }
 
@@ -86,13 +88,14 @@ func (command TraceCommand) run() {
 type LoopingGroup struct{ commands []Command }
 
 func (command LoopingGroup) add(cmd Command) {
+	fmt.Sprintf("Added looping node... length is now %d\n", len(command.commands))
 	command.commands = append(command.commands, cmd)
 }
 func (command LoopingGroup) run() {
 	for programBuffer[programIndex] != 0 {
-		var cmd Command
-		for _, cmd = range command.commands {
-			cmd.run()
+		var i int
+		for i = range command.commands {
+			command.commands[i].run()
 		}
 	}
 }
@@ -101,10 +104,12 @@ type LinearGroup struct{ commands []Command }
 
 func (command LinearGroup) add(cmd Command) {
 	command.commands = append(command.commands, cmd)
+	fmt.Sprintf("Added Linear node... length is now %d\n", len(command.commands))
 }
 func (command LinearGroup) run() {
-	var cmd Command
-	for _, cmd = range command.commands {
-		cmd.run()
+	var i int
+	fmt.Println("Program Start...")
+	for i = range command.commands {
+		command.commands[i].run()
 	}
 }
