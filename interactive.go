@@ -23,3 +23,105 @@ const (
 	PT_SHADOW_KNIGHT_1 = "shadow_knight_1"
 	PT_SHADOW_KNIGHT_2 = "shadow_knight_2"
 )
+
+func ErrorLevelMissing(level string) {
+	Printf("Error: The \"%s\" level is not yet supported. Please try again later or implement it yourself @ GitHub...\n", level)
+}
+
+func RunInteractiveProgram(programType, input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	switch programType {
+	case PT_RAGNAROK:
+		RunRagnarokProgram(input, trace, initialize, update)
+
+	case PT_RAGNAROK_GIANTS:
+		RunRagnarokGiantsProgram(input, trace, initialize, update)
+
+	case PT_KIRK:
+		RunKirkProgram(input, trace, initialize, update)
+
+	case PT_SKYNET:
+		ErrorLevelMissing("Skynet")
+
+	case PT_SKYNET_FINAL_1:
+		ErrorLevelMissing("Skynet Final #1")
+
+	case PT_SKYNET_FINAL_2:
+		ErrorLevelMissing("Skynet Final #2")
+
+	case PT_MARS_LANDER_1:
+		ErrorLevelMissing("Mars Lander #1")
+
+	case PT_MARS_LANDER_2:
+		ErrorLevelMissing("Mars Lander #2")
+
+	case PT_MARS_LANDER_3:
+		ErrorLevelMissing("Mars Lander #3")
+
+	case PT_INDIANA_1:
+		ErrorLevelMissing("Indiana #1")
+
+	case PT_INDIANA_2:
+		ErrorLevelMissing("Indiana #2")
+
+	case PT_INDIANA_3:
+		ErrorLevelMissing("Indiana #3")
+
+	case PT_KIRK_LABYRINTH:
+		ErrorLevelMissing("Kirk Labyrinth")
+
+	case PT_SHADOW_KNIGHT_1:
+		ErrorLevelMissing("Shadow of the Knight #1")
+
+	case PT_SHADOW_KNIGHT_2:
+		ErrorLevelMissing("Shadow of the Knight #2")
+	}
+}
+
+func RunInteractivePrograms(programType string, input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	switch programType {
+	case PT_RAGNAROK:
+		RunRagnarokPrograms(input, trace, initialize, update)
+
+	case PT_RAGNAROK_GIANTS:
+		RunRagnarokGiantsPrograms(input, trace, initialize, update)
+
+	case PT_KIRK:
+		RunKirkPrograms(input, trace, initialize, update)
+
+	case PT_SKYNET:
+		ErrorLevelMissing("Skynet")
+
+	case PT_SKYNET_FINAL_1:
+		ErrorLevelMissing("Skynet Final #1")
+
+	case PT_SKYNET_FINAL_2:
+		ErrorLevelMissing("Skynet Final #2")
+
+	case PT_MARS_LANDER_1:
+		ErrorLevelMissing("Mars Lander #1")
+
+	case PT_MARS_LANDER_2:
+		ErrorLevelMissing("Mars Lander #2")
+
+	case PT_MARS_LANDER_3:
+		ErrorLevelMissing("Mars Lander #3")
+
+	case PT_INDIANA_1:
+		ErrorLevelMissing("Indiana #1")
+
+	case PT_INDIANA_2:
+		ErrorLevelMissing("Indiana #2")
+
+	case PT_INDIANA_3:
+		ErrorLevelMissing("Indiana #3")
+
+	case PT_KIRK_LABYRINTH:
+		ErrorLevelMissing("Kirk Labyrinth")
+
+	case PT_SHADOW_KNIGHT_1:
+		ErrorLevelMissing("Shadow of the Knight #1")
+
+	case PT_SHADOW_KNIGHT_2:
+		ErrorLevelMissing("Shadow of the Knight #2")
+	}
+}
