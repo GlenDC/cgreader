@@ -4,7 +4,8 @@ const (
 	PT_RAGNAROK        = "ragnarok"
 	PT_RAGNAROK_GIANTS = "ragnarok_giants"
 
-	PT_KIRK = "kirk"
+	PT_KIRK        = "kirk"
+	PS_KIRK_BRIDGE = "skynet_bridge"
 
 	PT_SKYNET         = "skynet"
 	PT_SKYNET_FINAL_1 = "skynet_final_1"
@@ -45,6 +46,9 @@ func RunInteractiveProgram(programType, input string, trace bool, initialize Use
 
 	case PT_KIRK:
 		RunKirkProgram(input, trace, initialize, update)
+
+	case PS_KIRK_BRIDGE:
+		ErrorLevelMissing("Kirk Bridge")
 
 	case PT_SKYNET:
 		ErrorLevelMissing("Skynet")
@@ -97,6 +101,9 @@ func RunInteractivePrograms(programType string, input []string, trace bool, init
 
 	case PT_KIRK:
 		RunKirkPrograms(input, trace, initialize, update)
+
+	case PS_KIRK_BRIDGE:
+		ErrorLevelMissing("Kirk Bridge")
 
 	case PT_SKYNET:
 		ErrorLevelMissing("Skynet")
