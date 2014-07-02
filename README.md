@@ -33,7 +33,7 @@ Running a static challenge easy and straight forward, you can do it in the follo
     func RunStaticProgram(input, output string, trace bool, main ProgramMain)
 
     // run your static program for multiple scenarios
-    func RunStaticProgram(input, output []string, trace bool, main ProgramMain)
+    func RunStaticPrograms(input, output []string, trace bool, main ProgramMain)
 
 If you think away the syntax (which might be different from your language), you just have to call the function with 2 paramters to define your input and output text file(s), a boolean value to define if you want to see your generated output and a void function that encapsulates your program logic.
 
