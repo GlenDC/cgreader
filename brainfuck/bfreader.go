@@ -105,27 +105,15 @@ func main() {
 					}
 
 					if jsonInput := jsonInfo.Get(INFO_INPUT); jsonInput != nil {
-						if i, err := jsonInput.String(); err != nil {
-							if inputFiles, err = jsonInput.StringArray(); err != nil {
-								ErrorMessage(err.Error())
-							}
-						} else {
-							inputFiles = append(inputFiles, i)
-						}
+						inputFiles = GetEmbedFiles(jsonInput, inputFiles)
 					} else {
 						ErrorMissingInputFile()
 						return
 					}
 
 					if jsonOutput := jsonInfo.Get(INFO_OUTPUT); jsonOutput != nil {
-						if o, err := jsonOutput.String(); err != nil {
-							if outputFiles, err = jsonOutput.StringArray(); err != nil {
-								ErrorMessage(err.Error())
-							}
-						} else {
-							outputFiles = append(outputFiles, o)
-						}
-					} else if programType != CMD_MANUAL {
+						outputFiles = GetEmbedFiles(jsonOutput, outputFiles)
+					} else if programType == CMD_MANUAL {
 						ErrorMissingOutputFile()
 						return
 					}

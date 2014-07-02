@@ -58,3 +58,11 @@ func ErrorIllegalProgramFilePath(program string) {
 func ErrorIllegalEmbbedFormatValueType(fileType string) {
 	fmt.Printf("%sUnsupported embbed %s information format.\n", ERROR_PREFIX, fileType)
 }
+
+func ErrorIllegalEmbbedFormatSmartPath() {
+	fmt.Printf("%sInsert a '*' in your string where the numeric value should be placed.\n", ERROR_PREFIX)
+}
+
+func ErrorMissingInEmbedFormat(subject string) {
+	fmt.Printf("%sMissing %s in the embed info format\n", subject)
+}

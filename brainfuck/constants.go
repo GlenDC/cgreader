@@ -21,6 +21,8 @@ const (
 	INFO_TYPE   = "type"
 	INFO_INPUT  = "input"
 	INFO_OUTPUT = "output"
+	INFO_PATH   = "path"
+	INFO_AMOUNT = "amount"
 )
 
 const (
