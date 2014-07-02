@@ -24,12 +24,19 @@ const (
 	PT_SHADOW_KNIGHT_2 = "shadow_knight_2"
 )
 
+func ErrorUnknownLevel(level string) {
+	Printf("Error: The \"%s\" level is unkown and can not be excecuted. Please try again...\n", level)
+}
+
 func ErrorLevelMissing(level string) {
 	Printf("Error: The \"%s\" level is not yet supported. Please try again later or implement it yourself @ GitHub...\n", level)
 }
 
 func RunInteractiveProgram(programType, input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
 	switch programType {
+	default:
+		ErrorUnknownLevel(programType)
+
 	case PT_RAGNAROK:
 		RunRagnarokProgram(input, trace, initialize, update)
 
@@ -79,6 +86,9 @@ func RunInteractiveProgram(programType, input string, trace bool, initialize Use
 
 func RunInteractivePrograms(programType string, input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
 	switch programType {
+	default:
+		ErrorUnknownLevel(programType)
+
 	case PT_RAGNAROK:
 		RunRagnarokPrograms(input, trace, initialize, update)
 
