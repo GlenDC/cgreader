@@ -7,6 +7,7 @@ const (
 	CMD_RAGNAROK        = "ragnarok"
 	CMD_RAGNAROK_GIANTS = "ragnarokGiants"
 	SEPERATOR           = "###"
+	ERROR_PREFIX        = "Error: "
 )
 
 const (

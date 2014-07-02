@@ -45,6 +45,14 @@ func InitializeCGReader() {
 	rand.Seed(time.Now().UTC().UnixNano())
 }
 
+type ProgramResetCallback func()
+
+var ResetProgram ProgramResetCallback
+
+func SetResetProgramCallback(callback ProgramResetCallback) {
+	ResetProgram = callback
+}
+
 // output
 
 type PrintfCallback func(format string, a ...interface{})
@@ -248,6 +256,10 @@ func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
 func RunManualProgram(input string, main ProgramMain) {
 	InitializeCGReader()
 
+	if ResetProgram != nil {
+		ResetProgram()
+	}
+
 	output := make(chan string, buffer)
 	exit := make(chan struct{})
 
@@ -276,6 +288,10 @@ func RunManualPrograms(input []string, main ProgramMain) {
 
 func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) (result bool) {
 	InitializeCGReader()
+
+	if ResetProgram != nil {
+		ResetProgram()
+	}
 
 	ch := GetManualInput(input)
 	result = RunProgram(func(output chan string) {
@@ -326,6 +342,10 @@ type TargetProgram interface {
 
 func RunTargetProgram(input string, trace bool, program TargetProgram) (isOK bool) {
 	InitializeCGReader()
+
+	if ResetProgram != nil {
+		ResetProgram()
+	}
 
 	ch := GetManualInput(input)
 

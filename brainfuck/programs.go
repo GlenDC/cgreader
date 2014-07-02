@@ -14,7 +14,6 @@ func CreateManualFunction(main *Command) cgreader.ProgramMain {
 
 func CreateAndRunManulProgram(programFile []byte, programInputFile, programOutputFile string) {
 	if main, result := ParseManualProgram(programFile); result {
-		InitializeProgram()
 		cgreader.RunAndValidateManualProgram(
 			programInputFile,
 			programOutputFile,
@@ -25,8 +24,6 @@ func CreateAndRunManulProgram(programFile []byte, programInputFile, programOutpu
 
 func CreateAndRunManulPrograms(programFile []byte, programInputFiles, programOutputFiles []string) {
 	if main, result := ParseManualProgram(programFile); result {
-		InitializeProgram()
-
 		cgreader.RunAndValidateManualPrograms(
 			programInputFiles,
 			programOutputFiles,
@@ -53,8 +50,6 @@ func CreateTargetFunctions(initial, update *Command) (cgreader.UserInitializeFun
 
 func CreateAndRunTargetProgram(programFile []byte, programType, programInputFile string) {
 	if initial, update, result := ParseTargetProgram(programFile); result {
-		InitializeProgram()
-
 		initialFunction, updateFunction := CreateTargetFunctions(initial, update)
 
 		switch programType {
@@ -70,8 +65,6 @@ func CreateAndRunTargetProgram(programFile []byte, programType, programInputFile
 
 func CreateAndRunTargetPrograms(programFile []byte, programType string, programInputFiles []string) {
 	if initial, update, result := ParseTargetProgram(programFile); result {
-		InitializeProgram()
-
 		initialFunction, updateFunction := CreateTargetFunctions(initial, update)
 
 		switch programType {

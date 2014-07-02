@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/bitly/go-simplejson"
+	"github.com/glendc/cgreader"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -28,8 +28,11 @@ func InitializeProgram() {
 
 func main() {
 	isVerbose = false
-
 	programHasEmbeddedInfo := false
+
+	cgreader.SetResetProgramCallback(func() {
+		InitializeProgram()
+	})
 
 	var arguments []string
 	for _, argument := range os.Args {
@@ -82,36 +85,48 @@ func main() {
 				if infoIsOK {
 					file = file[programIndex:]
 
-					decoder := json.NewDecoder(strings.NewReader(string(rawInfo)))
-					var jsonInfo map[string]interface{}
+					reader := strings.NewReader(string(rawInfo))
+					jsonInfo, err := simplejson.NewFromReader(reader)
 
-					if err := decoder.Decode(&jsonInfo); err != nil {
-						fmt.Printf("ERROR! %s\n", err)
-						return
+					if err != nil {
+						ErrorIllegalEmbbedFormat()
 					}
 
 					var programType string
 					var inputFiles, outputFiles []string
 
-					for key, value := range jsonInfo {
-						switch key {
-						case INFO_TYPE:
-							programType = value.(string)
-
-						case INFO_INPUT:
-							inputFiles = append(inputFiles, value.(string))
-
-						case INFO_OUTPUT:
-							outputFiles = append(outputFiles, value.(string))
-
+					if jsonType := jsonInfo.Get(INFO_TYPE); jsonType != nil {
+						if programType, err = jsonType.String(); err != nil {
+							ErrorMessage(err.Error())
 						}
-					}
-
-					if programType == "" {
+					} else {
 						ErrorMissingProgramType()
 						return
-					} else if len(inputFiles) == 0 {
+					}
+
+					if jsonInput := jsonInfo.Get(INFO_INPUT); jsonInput != nil {
+						if i, err := jsonInput.String(); err != nil {
+							if inputFiles, err = jsonInput.StringArray(); err != nil {
+								ErrorMessage(err.Error())
+							}
+						} else {
+							inputFiles = append(inputFiles, i)
+						}
+					} else {
 						ErrorMissingInputFile()
+						return
+					}
+
+					if jsonOutput := jsonInfo.Get(INFO_OUTPUT); jsonOutput != nil {
+						if o, err := jsonOutput.String(); err != nil {
+							if outputFiles, err = jsonOutput.StringArray(); err != nil {
+								ErrorMessage(err.Error())
+							}
+						} else {
+							outputFiles = append(outputFiles, o)
+						}
+					} else if programType != CMD_MANUAL {
+						ErrorMissingOutputFile()
 						return
 					}
 
@@ -121,7 +136,15 @@ func main() {
 							ErrorMissingOutputFile()
 							return
 						} else {
-							CreateAndRunManulProgram(file, inputFiles[0], outputFiles[0])
+							if len(inputFiles) > 1 {
+								if len(outputFiles) == len(inputFiles) {
+									CreateAndRunManulPrograms(file, inputFiles, outputFiles)
+								} else {
+									ErrorManualProgramInputAndOutFilesNotEqual()
+								}
+							} else {
+								CreateAndRunManulProgram(file, inputFiles[0], outputFiles[0])
+							}
 						}
 					case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
 						CreateAndRunTargetProgram(file, programType, inputFiles[0])

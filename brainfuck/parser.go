@@ -122,7 +122,7 @@ func ParseTargetProgram(stream []byte) (initial, update *Command, result bool) {
 			result = false
 		}
 	} else {
-		IllegalTargetProgramFormat()
+		ErrorIllegalTargetProgramFormat()
 		result = false
 	}
 	return
