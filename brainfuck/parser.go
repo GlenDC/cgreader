@@ -87,7 +87,7 @@ func RecursiveParser(command *Command) {
 
 		case TRACE:
 			command.add(&Command{func([]*Command) {
-				cgreader.Tracef("[%d] = %d", programIndex, programBuffer[programIndex])
+				cgreader.Tracef("[%d] = %d\n", programIndex, programBuffer[programIndex])
 			}, nil})
 		}
 	}
