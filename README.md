@@ -3,6 +3,8 @@ Codingame Reader
 
 Small Go package to simulate the Codingame programs offline on your computer.
 
+Now supporting both **Go** and **Brainfuck**. Read more about brainfuck on the [wiki](https://github.com/GlenDC/cgreader/wiki).
+
 # Index
 
 1. [Quick Guide](#quick-guide)
