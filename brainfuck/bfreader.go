@@ -50,7 +50,7 @@ func main() {
 	} else {
 		switch len(arguments) {
 		case 1:
-			fmt.Printf("ERROR! Please provide a command\n%s\n", SYNOPSIS)
+			fmt.Printf("ERROR! Please provide a program type\n%s\n", SYNOPSIS)
 			return
 		case 2:
 			fmt.Printf("ERROR! Please provide the path to the brainfuck program\n%s\n", SYNOPSIS)
@@ -74,7 +74,7 @@ func main() {
 					CreateAndRunTargetProgram(file, programType, input)
 				default:
 					fmt.Printf(
-						"ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s, %s, %s, %s\n",
+						"ERROR! \"%s\" is not recognized as a valid program type\nLegal program types: %s, %s, %s, %s\n",
 						programType,
 						CMD_MANUAL,
 						CMD_KIRK,
