@@ -12,6 +12,14 @@ const (
 const (
 	FLAG_VERBOSE  = 0x76 // v
 	FLAG_EMBEDDED = 0x65 // e
+	JSON_START    = 0x7B // {
+	JSON_STOP     = 0x7D // }
+)
+
+const (
+	INFO_TYPE   = "type"
+	INFO_INPUT  = "input"
+	INFO_OUTPUT = "output"
 )
 
 const (

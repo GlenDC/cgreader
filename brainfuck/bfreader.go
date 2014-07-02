@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type brainfuck_t int32
@@ -45,8 +47,94 @@ func main() {
 		}
 	}
 
-	if programHasEmbeddedInfo {
+	if len(arguments) >= 2 && programHasEmbeddedInfo {
+		var program string
+		var rawInfo []byte
 
+		program = arguments[1]
+
+		if file, err := ioutil.ReadFile(program); err == nil {
+			var char byte
+			var programIndex int
+			infoIsOK := false
+
+			for ac, oc, c, l, i := 0, 0, 0, 0, 0; i < len(file); i, c = i+1, c+1 {
+				if char = file[i]; char == JSON_START {
+					ac++
+				} else if char == JSON_STOP {
+					if oc = oc + 1; oc > ac {
+						fmt.Printf("ERROR! Illegal JSON format, encountered '}' at line %d (%d)\n", l, c)
+						return
+					}
+				} else if char == LF || char == CR {
+					l, c = l+1, 1
+				}
+
+				rawInfo = append(rawInfo, char)
+
+				if ac > 0 && ac == oc {
+					infoIsOK, programIndex = true, i
+					break
+				}
+			}
+
+			if infoIsOK {
+				file = file[programIndex:]
+
+				decoder := json.NewDecoder(strings.NewReader(string(rawInfo)))
+				var jsonInfo map[string]interface{}
+
+				if err := decoder.Decode(&jsonInfo); err != nil {
+					fmt.Printf("ERROR! %s\n", err)
+					return
+				}
+
+				var programType string
+				var inputFiles, outputFiles []string
+
+				for key, value := range jsonInfo {
+					switch key {
+					case INFO_TYPE:
+						programType = value.(string)
+
+					case INFO_INPUT:
+						inputFiles = append(inputFiles, value.(string))
+
+					case INFO_OUTPUT:
+						outputFiles = append(outputFiles, value.(string))
+
+					}
+				}
+
+				if programType == "" {
+					fmt.Printf("ERROR! Please provide a program type\n%s\n", SYNOPSIS)
+				} else if len(inputFiles) == 0 {
+					fmt.Printf("ERROR! Please provide the path to an input file...\n%s\n", SYNOPSIS)
+				}
+
+				switch programType {
+				case CMD_MANUAL:
+					if len(outputFiles) == 0 {
+						fmt.Printf("ERROR! Please provide the path to an output file...\n%s\n", SYNOPSIS)
+						return
+					} else {
+						CreateAndRunManulProgram(file, inputFiles[0], outputFiles[0])
+					}
+				case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
+					CreateAndRunTargetProgram(file, programType, inputFiles[0])
+				default:
+					fmt.Printf(
+						"ERROR! \"%s\" is not recognized as a valid program type\nLegal program types: %s, %s, %s, %s\n",
+						programType,
+						CMD_MANUAL,
+						CMD_KIRK,
+						CMD_RAGNAROK,
+						CMD_RAGNAROK_GIANTS)
+				}
+			} else {
+				fmt.Println("ERROR! Illegal Embedded Info Format.")
+			}
+		}
 	} else {
 		switch len(arguments) {
 		case 1:
