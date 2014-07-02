@@ -1,13 +1,10 @@
 package main
 
 const (
-	SYNOPSIS            = "bfreader [command] [program] [input] [output]\n\tcommand: a subcommand that defines the type of program to run\n\tprogram: the path to the brainfuck program file\n\tinput: the path to the input test file\n\toutput: the path to the output test file (optional)"
-	CMD_MANUAL          = "manual"
-	CMD_KIRK            = "kirk"
-	CMD_RAGNAROK        = "ragnarok"
-	CMD_RAGNAROK_GIANTS = "ragnarokGiants"
-	SEPERATOR           = "###"
-	ERROR_PREFIX        = "Error: "
+	SYNOPSIS     = "bfreader [type] [program] [input] [output]\n\ttype: a subcommand that defines the type of program to run\n\tprogram: the path to the brainfuck program file\n\tinput: the path to the input test file\n\toutput: the path to the output test file (optional)"
+	CMD_MANUAL   = "manual"
+	SEPERATOR    = "###"
+	ERROR_PREFIX = "Error: "
 )
 
 const (

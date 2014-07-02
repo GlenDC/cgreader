@@ -118,8 +118,7 @@ func main() {
 						return
 					}
 
-					switch programType {
-					case CMD_MANUAL:
+					if programType == CMD_MANUAL {
 						if len(outputFiles) == 0 {
 							ErrorMissingOutputFile()
 							return
@@ -134,10 +133,8 @@ func main() {
 								CreateAndRunManulProgram(file, inputFiles[0], outputFiles[0])
 							}
 						}
-					case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
+					} else {
 						CreateAndRunTargetProgram(file, programType, inputFiles[0])
-					default:
-						ErrorIllegalProgramType(programType)
 					}
 				} else {
 					ErrorIllegalEmbbedFormat()
@@ -163,18 +160,15 @@ func main() {
 			programType, program, input := arguments[1], arguments[2], arguments[3]
 
 			if file, err := ioutil.ReadFile(program); err == nil {
-				switch programType {
-				case CMD_MANUAL:
+				if programType == CMD_MANUAL {
 					if len(arguments) < 5 {
 						ErrorMissingOutputFile()
 					} else {
 						output := arguments[4]
 						CreateAndRunManulProgram(file, input, output)
 					}
-				case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
+				} else {
 					CreateAndRunTargetProgram(file, programType, input)
-				default:
-					ErrorIllegalProgramType(programType)
 				}
 			} else {
 				ErrorIllegalProgramFilePath(program)

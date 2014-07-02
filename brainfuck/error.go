@@ -32,17 +32,6 @@ func ErrorIllegalEmbbedFormat() {
 	fmt.Printf("%sIllegal Embedded Info Format\n", ERROR_PREFIX)
 }
 
-func ErrorIllegalProgramType(programType string) {
-	fmt.Printf(
-		"%s\"%s\" is not recognized as a valid program type\nLegal program types: %s, %s, %s, %s\n",
-		ERROR_PREFIX,
-		programType,
-		CMD_MANUAL,
-		CMD_KIRK,
-		CMD_RAGNAROK,
-		CMD_RAGNAROK_GIANTS)
-}
-
 func ErrorManualProgramInputAndOutFilesNotEqual() {
 	fmt.Printf("%sThe amount of input and output files given is not equal\n", ERROR_PREFIX)
 }

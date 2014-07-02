@@ -51,29 +51,13 @@ func CreateTargetFunctions(initial, update *Command) (cgreader.UserInitializeFun
 func CreateAndRunTargetProgram(programFile []byte, programType, programInputFile string) {
 	if initial, update, result := ParseTargetProgram(programFile); result {
 		initialFunction, updateFunction := CreateTargetFunctions(initial, update)
-
-		switch programType {
-		case CMD_KIRK:
-			cgreader.RunKirkProgram(programInputFile, isVerbose, initialFunction, updateFunction)
-		case CMD_RAGNAROK:
-			cgreader.RunRagnarokProgram(programInputFile, isVerbose, initialFunction, updateFunction)
-		case CMD_RAGNAROK_GIANTS:
-			cgreader.RunRagnarokGiantsProgram(programInputFile, isVerbose, initialFunction, updateFunction)
-		}
+		cgreader.RunInteractiveProgram(programType, programInputFile, isVerbose, initialFunction, updateFunction)
 	}
 }
 
 func CreateAndRunTargetPrograms(programFile []byte, programType string, programInputFiles []string) {
 	if initial, update, result := ParseTargetProgram(programFile); result {
 		initialFunction, updateFunction := CreateTargetFunctions(initial, update)
-
-		switch programType {
-		case CMD_KIRK:
-			cgreader.RunKirkPrograms(programInputFiles, isVerbose, initialFunction, updateFunction)
-		case CMD_RAGNAROK:
-			cgreader.RunRagnarokPrograms(programInputFiles, isVerbose, initialFunction, updateFunction)
-		case CMD_RAGNAROK_GIANTS:
-			cgreader.RunRagnarokGiantsPrograms(programInputFiles, isVerbose, initialFunction, updateFunction)
-		}
+		cgreader.RunInteractivePrograms(programType, programInputFiles, isVerbose, initialFunction, updateFunction)
 	}
 }
