@@ -10,19 +10,24 @@ const (
 )
 
 const (
-	PI    = 0x3E
-	PD    = 0x3C
-	VI    = 0x2B
-	VD    = 0x2D
-	IN    = 0x2C
-	NOUT  = 0x23
-	COUT  = 0x2E
-	START = 0x5B
-	STOP  = 0x5D
-	TRACE = 0x3F
-	LF    = 0x0A
-	CR    = 0x0D
-	DASH  = 0x2D
+	FLAG_VERBOSE  = 0x76 // v
+	FLAG_EMBEDDED = 0x65 // e
+)
+
+const (
+	PI    = 0x3E // >
+	PD    = 0x3C // <
+	VI    = 0x2B // +
+	VD    = 0x2D // -
+	IN    = 0x2C // ,
+	NOUT  = 0x23 // #
+	COUT  = 0x2E // .
+	START = 0x5B // [
+	STOP  = 0x5D // ]
+	TRACE = 0x3F // ?
+	LF    = 0x0A // \n
+	CR    = 0x0D // \r
+	DASH  = 0x2D // -
 )
 
 const PROGRAM_SIZE = 30000

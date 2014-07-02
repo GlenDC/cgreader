@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/glendc/cgreader"
 	"io/ioutil"
 	"os"
 )
@@ -28,86 +27,63 @@ func InitializeProgram() {
 func main() {
 	isVerbose = false
 
+	programHasEmbeddedInfo := false
+
 	var arguments []string
 	for _, argument := range os.Args {
 		if argument[0] != DASH {
 			arguments = append(arguments, argument)
 		} else {
-			if argument == "-v" || argument == "--verbose" {
-				isVerbose = true
+			for i := 1; i < len(argument); i++ {
+				switch argument[i] {
+				case FLAG_VERBOSE:
+					isVerbose = true
+				case FLAG_EMBEDDED:
+					programHasEmbeddedInfo = true
+				}
 			}
 		}
 	}
 
-	switch len(arguments) {
-	case 1:
-		fmt.Printf("ERROR! Please provide a command\n%s\n", SYNOPSIS)
-		return
-	case 2:
-		fmt.Printf("ERROR! Please provide the path to the brainfuck program\n%s\n", SYNOPSIS)
-		return
-	case 3:
-		fmt.Printf("ERROR! Please provide the path to an input file...\n%s\n", SYNOPSIS)
-		return
-	default:
-		command, program, input := arguments[1], arguments[2], arguments[3]
+	if programHasEmbeddedInfo {
 
-		if file, err := ioutil.ReadFile(program); err == nil {
-			switch command {
-			case CMD_MANUAL:
-				if len(arguments) < 5 {
-					fmt.Printf("ERROR! Please provide the path to an output file...\n%s\n", SYNOPSIS)
-				} else {
-					output := arguments[4]
-					if main, result := ParseManualProgram(file); result {
-						InitializeProgram()
-						cgreader.RunAndValidateManualProgram(
-							input,
-							output,
-							isVerbose,
-							func(input <-chan string, output chan string) {
-								inputChannel, outputChannel = input, output
-								inputIsAvailable, outputIsAvailable = true, true
-								main.excecute()
-							})
+	} else {
+		switch len(arguments) {
+		case 1:
+			fmt.Printf("ERROR! Please provide a command\n%s\n", SYNOPSIS)
+			return
+		case 2:
+			fmt.Printf("ERROR! Please provide the path to the brainfuck program\n%s\n", SYNOPSIS)
+			return
+		case 3:
+			fmt.Printf("ERROR! Please provide the path to an input file...\n%s\n", SYNOPSIS)
+			return
+		default:
+			programType, program, input := arguments[1], arguments[2], arguments[3]
+
+			if file, err := ioutil.ReadFile(program); err == nil {
+				switch programType {
+				case CMD_MANUAL:
+					if len(arguments) < 5 {
+						fmt.Printf("ERROR! Please provide the path to an output file...\n%s\n", SYNOPSIS)
+					} else {
+						output := arguments[4]
+						CreateAndRunManulProgram(file, input, output)
 					}
+				case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
+					CreateAndRunTargetProgram(file, programType, input)
+				default:
+					fmt.Printf(
+						"ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s, %s, %s, %s\n",
+						programType,
+						CMD_MANUAL,
+						CMD_KIRK,
+						CMD_RAGNAROK,
+						CMD_RAGNAROK_GIANTS)
 				}
-			case CMD_KIRK, CMD_RAGNAROK, CMD_RAGNAROK_GIANTS:
-				if initial, update, result := ParseTargetProgram(file); result {
-					InitializeProgram()
-
-					initialFunction := func(input <-chan string) {
-						inputChannel = input
-						inputIsAvailable, outputIsAvailable = true, false
-						initial.excecute()
-					}
-
-					updateFunction := func(input <-chan string, output chan string) {
-						inputChannel, outputChannel = input, output
-						inputIsAvailable, outputIsAvailable = true, true
-						update.excecute()
-					}
-
-					switch command {
-					case CMD_KIRK:
-						cgreader.RunKirkProgram(input, isVerbose, initialFunction, updateFunction)
-					case CMD_RAGNAROK:
-						cgreader.RunRagnarokProgram(input, isVerbose, initialFunction, updateFunction)
-					case CMD_RAGNAROK_GIANTS:
-						cgreader.RunRagnarokGiantsProgram(input, isVerbose, initialFunction, updateFunction)
-					}
-				}
-			default:
-				fmt.Printf(
-					"ERROR! \"%s\" is not recognized as a valid command\nLegal commands: %s, %s, %s, %s\n",
-					command,
-					CMD_MANUAL,
-					CMD_KIRK,
-					CMD_RAGNAROK,
-					CMD_RAGNAROK_GIANTS)
+			} else {
+				fmt.Printf("ERROR! \"%s\" is not recognized as a valid path\n", program)
 			}
-		} else {
-			fmt.Printf("ERROR! \"%s\" is not recognized as a valid path\n", program)
 		}
 	}
 }
