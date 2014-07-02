@@ -8,7 +8,7 @@ import (
 
 var rawProgramStream []byte
 var currentStreamIndex int
-var lineCounter, characterCounter, startLoopCounter, stopLoopCounter uint64
+var lineCounter, characterCounter, startLoopCounter, stopLoopCounter int
 var streamIsValid bool
 
 func RecursiveParser(command *Command) {
@@ -74,7 +74,7 @@ func RecursiveParser(command *Command) {
 
 		case STOP:
 			if stopLoopCounter > startLoopCounter {
-				fmt.Printf("ERROR! Parsing failed on Line %d (%d): encountered \"]\" while expecting ><+-,.#[\n", lineCounter, characterCounter)
+				ErrorTextParseError("Parsed filed, encountered \"]\" while expecting ><+-,.#[", lineCounter, characterCounter)
 				streamIsValid = false
 			}
 
@@ -122,7 +122,7 @@ func ParseTargetProgram(stream []byte) (initial, update *Command, result bool) {
 			result = false
 		}
 	} else {
-		fmt.Printf("ERROR! Please seperate your intial and update logic with \"%s\"\n", SEPERATOR)
+		IllegalTargetProgramFormat()
 		result = false
 	}
 	return
