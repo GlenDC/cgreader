@@ -14,7 +14,7 @@ func CreateManualFunction(main *Command) cgreader.ProgramMain {
 
 func CreateAndRunManulProgram(programFile []byte, programInputFile, programOutputFile string) {
 	if main, result := ParseManualProgram(programFile); result {
-		cgreader.RunAndValidateManualProgram(
+		cgreader.RunStaticProgram(
 			programInputFile,
 			programOutputFile,
 			isVerbose,
@@ -24,7 +24,7 @@ func CreateAndRunManulProgram(programFile []byte, programInputFile, programOutpu
 
 func CreateAndRunManulPrograms(programFile []byte, programInputFiles, programOutputFiles []string) {
 	if main, result := ParseManualProgram(programFile); result {
-		cgreader.RunAndValidateManualPrograms(
+		cgreader.RunStaticPrograms(
 			programInputFiles,
 			programOutputFiles,
 			isVerbose,

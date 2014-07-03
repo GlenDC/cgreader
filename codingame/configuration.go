@@ -1,4 +1,4 @@
-package cgreader
+package codingame
 
 import (
 	"fmt"
@@ -12,14 +12,6 @@ var timeout time.Duration = time.Second
 
 func SetBuffer(size int) {
 	buffer = size
-}
-
-func SetFrameRate(fps int) {
-	if fps == 0 {
-		SetDelay(0)
-	} else {
-		SetDelay(1000 / fps)
-	}
 }
 
 func SetDelay(ms int) {

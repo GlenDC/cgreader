@@ -1,4 +1,4 @@
-package cgreader
+package codingame
 
 import (
 	"fmt"
