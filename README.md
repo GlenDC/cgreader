@@ -55,9 +55,12 @@ You can find the program type (id) for all the supported interactive challenges 
 
 ## ready-to-use challenges:
 
-* [**ragnarok**] Power of Thor: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go)
-* [**ragnarok_giants**] Thor Vs. Giants: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok_giants.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/ragnarok_giants.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok_giants.go)
-* [**kirk**] Kirk's Quest - The descent: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/kirk.md), [template](https://github.com/GlenDC/Codingame/blob/master/templates/go/kirk.go) and [solution](https://github.com/GlenDC/Codingame/blob/master/solutions/go/kirk.go)
+* [**ragnarok**] Power of Thor: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok.md)
+  * Solutions: [Go](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok.go)
+* [**ragnarok_giants**] Thor Vs. Giants: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/ragnarok_giants.md)
+  * Solutions: [Go](https://github.com/GlenDC/Codingame/blob/master/solutions/go/ragnarok_giants.go)
+* [**kirk**] Kirk's Quest - The descent: [description](https://raw.githubusercontent.com/GlenDC/Codingame/master/descriptions/kirk.md)
+  * Solutions: [Go](https://github.com/GlenDC/Codingame/blob/master/solutions/go/kirk.go)
 
 ## challenges to be developed:
 
