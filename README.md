@@ -49,6 +49,12 @@ Running an interactive challenge is just as easy and straight forward as a stati
 
 If you think away the syntax (which might be different from your language), you just have to call the function with the first parameter that defines your program type (a string), the input file(s) for the program, a boolean value to define if you want to see your generated output and 2 void functions that encapsulates your program logic for both the initial input and the program loop.
 
+## Run a sandboxed program
+
+In case you're programming in a languaged parsed by this repository, such as **Brainfuck** you might want to run the program without using any input and validation. This is possible via the ``RunProgram`` function which still gives you the timout protection and runtime report.
+
+    func RunProgram(main SandboxProgramFunction)
+
 # List of interactive challenges
 
 You can find the program type (id) for all the supported interactive challenges within square brackets just next to their official name.
