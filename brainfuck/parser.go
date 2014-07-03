@@ -43,8 +43,12 @@ func RecursiveParser(command *Command) {
 						programInput = []byte(<-inputChannel)
 					}
 
-					programBuffer[programIndex] = brainfuck_t(programInput[0])
-					programInput = programInput[1:]
+					if len(programInput) > 0 {
+						programBuffer[programIndex] = brainfuck_t(programInput[0])
+						programInput = programInput[1:]
+					} else {
+						programBuffer[programIndex] = EOF
+					}
 				} else {
 					programBuffer[programIndex] = EOF
 				}
