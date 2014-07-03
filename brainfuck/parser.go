@@ -79,7 +79,6 @@ func RecursiveParser(command *Command) {
 			}
 
 			stopLoopCounter++
-			currentStreamIndex++
 			return
 
 		case LF, CR:
