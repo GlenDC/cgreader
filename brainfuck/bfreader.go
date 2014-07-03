@@ -125,16 +125,24 @@ func main() {
 						} else {
 							if len(inputFiles) > 1 {
 								if len(outputFiles) == len(inputFiles) {
-									CreateAndRunManulPrograms(file, inputFiles, outputFiles)
+									CreateAndRunStaticPrograms(file, inputFiles, outputFiles)
 								} else {
 									ErrorManualProgramInputAndOutFilesNotEqual()
 								}
 							} else {
-								CreateAndRunManulProgram(file, inputFiles[0], outputFiles[0])
+								CreateAndRunStaticProgram(file, inputFiles[0], outputFiles[0])
 							}
 						}
 					} else {
-						CreateAndRunTargetProgram(file, programType, inputFiles[0])
+						if len(inputFiles) > 1 {
+							if len(outputFiles) == len(inputFiles) {
+								CreateAndRunInteractivePrograms(file, programType, inputFiles)
+							} else {
+								ErrorManualProgramInputAndOutFilesNotEqual()
+							}
+						} else {
+							CreateAndRunInteractiveProgram(file, programType, inputFiles[0])
+						}
 					}
 				} else {
 					ErrorIllegalEmbbedFormat()
@@ -144,6 +152,12 @@ func main() {
 			}
 		} else {
 			ErrorMissingBrainfuckProgram()
+		}
+	} else if len(arguments) == 2 {
+		if file, err := ioutil.ReadFile(arguments[1]); err == nil {
+			CreateAndRunProgram(file)
+		} else {
+			ErrorMessage(err.Error())
 		}
 	} else {
 		switch len(arguments) {
@@ -165,10 +179,10 @@ func main() {
 						ErrorMissingOutputFile()
 					} else {
 						output := arguments[4]
-						CreateAndRunManulProgram(file, input, output)
+						CreateAndRunStaticProgram(file, input, output)
 					}
 				} else {
-					CreateAndRunTargetProgram(file, programType, input)
+					CreateAndRunInteractiveProgram(file, programType, input)
 				}
 			} else {
 				ErrorIllegalProgramFilePath(program)

@@ -157,6 +157,27 @@ func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
 	return true
 }
 
+type SandboxProgramFunction func(chan string)
+
+func RunSandboxProgram(main SandboxProgramFunction) {
+	InitializeCGReader()
+
+	if ResetProgram != nil {
+		ResetProgram()
+	}
+
+	RunProgram(func(output chan string) {
+		main(output)
+		close(output)
+	}, func(output []string, time float64) {
+		for _, line := range output {
+			Println(line)
+		}
+
+		Printf("Your program finished in %fs :)\n", time)
+	})
+}
+
 func RunManualProgram(input string, main ProgramMain) {
 	InitializeCGReader()
 

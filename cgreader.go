@@ -40,6 +40,7 @@ type (
 	UserUpdateFunction     codingame.UserUpdateFunction
 	ProgramResetCallback   codingame.ProgramResetCallback
 	PrintfCallback         codingame.PrintfCallback
+	SandboxProgramFunction codingame.SandboxProgramFunction
 )
 
 // configuration
@@ -94,6 +95,12 @@ func GetFileList(format string, n int) (files []string) {
 		files[i] = fmt.Sprintf(format, i+1)
 	}
 	return
+}
+
+// sandbox
+
+func RunProgram(main SandboxProgramFunction) {
+	codingame.RunSandboxProgram(codingame.SandboxProgramFunction(main))
 }
 
 // static

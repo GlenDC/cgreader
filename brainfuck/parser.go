@@ -106,13 +106,13 @@ func ParseLinearProgram(input []byte) *Command {
 	return command
 }
 
-func ParseManualProgram(stream []byte) (*Command, bool) {
+func ParseStaticProgram(stream []byte) (*Command, bool) {
 	lineCounter, characterCounter = 0, 0
 	program := ParseLinearProgram(stream)
 	return program, streamIsValid
 }
 
-func ParseTargetProgram(stream []byte) (initial, update *Command, result bool) {
+func ParseInteractiveProgram(stream []byte) (initial, update *Command, result bool) {
 	lineCounter, characterCounter = 0, 0
 	if index := strings.Index(string(stream), SEPERATOR); index != -1 {
 		if initial = ParseLinearProgram(stream[:index-1]); streamIsValid {

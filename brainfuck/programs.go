@@ -4,7 +4,22 @@ import (
 	"github.com/glendc/cgreader"
 )
 
-func CreateManualFunction(main *Command) cgreader.ProgramMain {
+// program
+
+func CreateAndRunProgram(programFile []byte) {
+	if main, result := ParseStaticProgram(programFile); result {
+		cgreader.RunProgram(
+			func(output chan string) {
+				outputChannel = output
+				outputIsAvailable = true
+				main.excecute()
+			})
+	}
+}
+
+// static
+
+func CreateStaticFunction(main *Command) cgreader.ProgramMain {
 	return func(input <-chan string, output chan string) {
 		inputChannel, outputChannel = input, output
 		inputIsAvailable, outputIsAvailable = true, true
@@ -12,27 +27,29 @@ func CreateManualFunction(main *Command) cgreader.ProgramMain {
 	}
 }
 
-func CreateAndRunManulProgram(programFile []byte, programInputFile, programOutputFile string) {
-	if main, result := ParseManualProgram(programFile); result {
+func CreateAndRunStaticProgram(programFile []byte, programInputFile, programOutputFile string) {
+	if main, result := ParseStaticProgram(programFile); result {
 		cgreader.RunStaticProgram(
 			programInputFile,
 			programOutputFile,
 			isVerbose,
-			CreateManualFunction(main))
+			CreateStaticFunction(main))
 	}
 }
 
-func CreateAndRunManulPrograms(programFile []byte, programInputFiles, programOutputFiles []string) {
-	if main, result := ParseManualProgram(programFile); result {
+func CreateAndRunStaticPrograms(programFile []byte, programInputFiles, programOutputFiles []string) {
+	if main, result := ParseStaticProgram(programFile); result {
 		cgreader.RunStaticPrograms(
 			programInputFiles,
 			programOutputFiles,
 			isVerbose,
-			CreateManualFunction(main))
+			CreateStaticFunction(main))
 	}
 }
 
-func CreateTargetFunctions(initial, update *Command) (cgreader.UserInitializeFunction, cgreader.UserUpdateFunction) {
+// interactive
+
+func CreateInteractiveFunctions(initial, update *Command) (cgreader.UserInitializeFunction, cgreader.UserUpdateFunction) {
 	initialFunction := func(input <-chan string) {
 		inputChannel = input
 		inputIsAvailable, outputIsAvailable = true, false
@@ -48,16 +65,16 @@ func CreateTargetFunctions(initial, update *Command) (cgreader.UserInitializeFun
 	return initialFunction, updateFunction
 }
 
-func CreateAndRunTargetProgram(programFile []byte, programType, programInputFile string) {
-	if initial, update, result := ParseTargetProgram(programFile); result {
-		initialFunction, updateFunction := CreateTargetFunctions(initial, update)
+func CreateAndRunInteractiveProgram(programFile []byte, programType, programInputFile string) {
+	if initial, update, result := ParseInteractiveProgram(programFile); result {
+		initialFunction, updateFunction := CreateInteractiveFunctions(initial, update)
 		cgreader.RunInteractiveProgram(programType, programInputFile, isVerbose, initialFunction, updateFunction)
 	}
 }
 
-func CreateAndRunTargetPrograms(programFile []byte, programType string, programInputFiles []string) {
-	if initial, update, result := ParseTargetProgram(programFile); result {
-		initialFunction, updateFunction := CreateTargetFunctions(initial, update)
+func CreateAndRunInteractivePrograms(programFile []byte, programType string, programInputFiles []string) {
+	if initial, update, result := ParseInteractiveProgram(programFile); result {
+		initialFunction, updateFunction := CreateInteractiveFunctions(initial, update)
 		cgreader.RunInteractivePrograms(programType, programInputFiles, isVerbose, initialFunction, updateFunction)
 	}
 }
