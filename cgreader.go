@@ -146,7 +146,7 @@ func RunInteractiveProgram(programType, input string, trace bool, initialize Use
 		ErrorLevelMissing("Kirk Bridge")
 
 	case PT_SKYNET:
-		ErrorLevelMissing("Skynet")
+		codingame.RunSkynetProgram(input, trace, userInit, userUpdate)
 
 	case PT_SKYNET_FINAL_1:
 		ErrorLevelMissing("Skynet Final #1")
@@ -204,7 +204,7 @@ func RunInteractivePrograms(programType string, input []string, trace bool, init
 		ErrorLevelMissing("Kirk Bridge")
 
 	case PT_SKYNET:
-		ErrorLevelMissing("Skynet")
+		codingame.RunSkynetPrograms(input, trace, userInit, userUpdate)
 
 	case PT_SKYNET_FINAL_1:
 		ErrorLevelMissing("Skynet Final #1")
