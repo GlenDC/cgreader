@@ -123,13 +123,13 @@ func (skynet *Skynet) SetOutput(output []string) string {
 
 	if skynet.trace {
 		mapInfo := make([]MapObject, len(skynet.platforms)+1)
-		mapInfo[len(skynet.platforms)] = MapObject(skynet.bike)
+		mapInfo[0] = MapObject(skynet.bike)
 		for i, platform := range skynet.platforms {
-			mapInfo[i] = MapObject(platform)
+			mapInfo[i+1] = MapObject(platform)
 		}
 
 		DrawMap(
-			len(mapInfo),
+			len(skynet.platforms),
 			1,
 			"?",
 			mapInfo...)

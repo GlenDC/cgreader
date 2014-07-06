@@ -46,7 +46,7 @@ func GetDirectionLetter(a, b string, v int) string {
 func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
 	fmt.Sscanf(
 		<-ch,
-		"%d %d %d %d %d %d %d \n",
+		"%d %d %d %d %d %d %d",
 		&ragnarok.dimensions.x,
 		&ragnarok.dimensions.y,
 		&ragnarok.thor.x,
@@ -58,7 +58,7 @@ func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
 	output := make(chan string)
 	go func() {
 		output <- fmt.Sprintf(
-			"%d %d %d %d",
+			"%d %d %d %d\n",
 			ragnarok.target.x,
 			ragnarok.target.y,
 			ragnarok.thor.x,
@@ -72,7 +72,7 @@ func (ragnarok *Ragnarok) ParseInitialData(ch <-chan string) {
 func (ragnarok *Ragnarok) GetInput() (ch chan string) {
 	ch = make(chan string)
 	go func() {
-		ch <- fmt.Sprintf("%d", ragnarok.energy)
+		ch <- fmt.Sprintf("%d\n", ragnarok.energy)
 	}()
 	return
 }

@@ -64,9 +64,9 @@ func (kirk *Kirk) GetHeight(m uint32) uint32 {
 func (kirk *Kirk) GetInput() (ch chan string) {
 	ch = make(chan string)
 	go func() {
-		ch <- fmt.Sprintf("%d %d", kirk.player.x, kirk.player.y)
+		ch <- fmt.Sprintf("%d %d\n", kirk.player.x, kirk.player.y)
 		for _, mountain := range kirk.mountains {
-			ch <- fmt.Sprintf("%d", uint32(kirk.maxHeight)-kirk.GetHeight(mountain)-1)
+			ch <- fmt.Sprintf("%d\n", uint32(kirk.maxHeight)-kirk.GetHeight(mountain)-1)
 		}
 	}()
 	return

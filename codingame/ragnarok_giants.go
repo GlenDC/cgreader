@@ -100,7 +100,7 @@ func (ragnarok *RagnarokGiants) ParseInitialData(ch <-chan string) {
 
 	fmt.Sscanf(
 		<-ch,
-		"%d %d %d %d \n",
+		"%d %d %d %d\n",
 		&ragnarok.energy,
 		&ragnarok.thor.x,
 		&ragnarok.thor.y,
@@ -108,7 +108,7 @@ func (ragnarok *RagnarokGiants) ParseInitialData(ch <-chan string) {
 
 	output := make(chan string)
 	go func() {
-		output <- fmt.Sprintf("%d %d", ragnarok.thor.x, ragnarok.thor.y)
+		output <- fmt.Sprintf("%d %d\n", ragnarok.thor.x, ragnarok.thor.y)
 	}()
 	ragnarok.UserInitialize(output)
 
@@ -117,7 +117,7 @@ func (ragnarok *RagnarokGiants) ParseInitialData(ch <-chan string) {
 	for i := range ragnarok.giants {
 		fmt.Sscanf(
 			<-ch,
-			"%d %d \n",
+			"%d %d\n",
 			&ragnarok.giants[i].x,
 			&ragnarok.giants[i].y)
 		ragnarok.giants[i].icon = "G"
@@ -129,9 +129,9 @@ func (ragnarok *RagnarokGiants) ParseInitialData(ch <-chan string) {
 func (ragnarok *RagnarokGiants) GetInput() (ch chan string) {
 	ch = make(chan string)
 	go func() {
-		ch <- fmt.Sprintf("%d %d", ragnarok.energy, len(ragnarok.giants))
+		ch <- fmt.Sprintf("%d %d\n", ragnarok.energy, len(ragnarok.giants))
 		for _, giant := range ragnarok.giants {
-			ch <- fmt.Sprintf("%d %d", giant.x, giant.y)
+			ch <- fmt.Sprintf("%d %d\n", giant.x, giant.y)
 		}
 	}()
 	return
