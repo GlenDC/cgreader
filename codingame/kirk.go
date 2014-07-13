@@ -1,4 +1,4 @@
-package cgreader
+package codingame
 
 import (
 	"fmt"
@@ -64,9 +64,9 @@ func (kirk *Kirk) GetHeight(m uint32) uint32 {
 func (kirk *Kirk) GetInput() (ch chan string) {
 	ch = make(chan string)
 	go func() {
-		ch <- fmt.Sprintf("%d %d", kirk.player.x, kirk.player.y)
+		ch <- fmt.Sprintf("%d %d\n", kirk.player.x, kirk.player.y)
 		for _, mountain := range kirk.mountains {
-			ch <- fmt.Sprintf("%d", uint32(kirk.maxHeight)-kirk.GetHeight(mountain)-1)
+			ch <- fmt.Sprintf("%d\n", uint32(kirk.maxHeight)-kirk.GetHeight(mountain)-1)
 		}
 	}()
 	return
@@ -139,7 +139,7 @@ func (kirk *Kirk) WinConditionCheck() bool {
 	return true
 }
 
-func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) bool {
 	kirk := Kirk{}
 
 	SetTimeout(0.1)
@@ -147,12 +147,16 @@ func RunKirkProgram(input string, trace bool, initialize UserInitializeFunction,
 	kirk.UserInitialize, kirk.UserUpdate, kirk.trace = initialize, update, trace
 	kirk.mountains, kirk.direction, kirk.canFire = make([]uint32, KIRK_N), 1, true
 
-	RunTargetProgram(input, trace, &kirk)
+	return RunTargetProgram(input, trace, &kirk)
 }
 
 func RunKirkPrograms(input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	var counter int
 	for i := range input {
-		RunKirkProgram(input[i], trace, initialize, update)
-		Printf("\n")
+		if RunKirkProgram(input[i], trace, initialize, update) {
+			counter++
+		}
+		Println("")
 	}
+	ReportTotalResult(counter, len(input))
 }

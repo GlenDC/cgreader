@@ -2,85 +2,89 @@ package cgreader
 
 import (
 	"fmt"
-	"io/ioutil"
-	"math/rand"
-	"strings"
-	"time"
+	"github.com/glendc/cgreader/codingame"
 )
 
-// conf
+// levels
 
-var buffer int = 2048
-var delay time.Duration
-var timeout time.Duration = time.Second
+const (
+	PT_RAGNAROK        = "ragnarok"
+	PT_RAGNAROK_GIANTS = "ragnarok_giants"
+
+	PT_KIRK        = "kirk"
+	PS_KIRK_BRIDGE = "skynet_bridge"
+
+	PT_SKYNET         = "skynet"
+	PT_SKYNET_FINAL_1 = "skynet_final_1"
+	PT_SKYNET_FINAL_2 = "skynet_final_2"
+
+	PT_MARS_LANDER_1 = "mars_lander_1"
+	PT_MARS_LANDER_2 = "mars_lander_2"
+	PT_MARS_LANDER_3 = "mars_lander_3"
+
+	PT_INDIANA_1 = "indiana_1"
+	PT_INDIANA_2 = "indiana_2"
+	PT_INDIANA_3 = "indiana_3"
+
+	PT_KIRK_LABYRINTH = "labyrinth"
+
+	PT_SHADOW_KNIGHT_1 = "shadow_knight_1"
+	PT_SHADOW_KNIGHT_2 = "shadow_knight_2"
+)
+
+// typedefinitions
+
+type (
+	ProgramMain            codingame.ProgramMain
+	UserInitializeFunction codingame.UserInitializeFunction
+	UserUpdateFunction     codingame.UserUpdateFunction
+	ProgramResetCallback   codingame.ProgramResetCallback
+	PrintfCallback         codingame.PrintfCallback
+	SandboxProgramFunction codingame.SandboxProgramFunction
+)
+
+// configuration
 
 func SetBuffer(size int) {
-	buffer = size
+	codingame.SetBuffer(size)
 }
 
 func SetFrameRate(fps int) {
 	if fps == 0 {
-		SetDelay(0)
+		codingame.SetDelay(0)
 	} else {
-		SetDelay(1000 / fps)
+		codingame.SetDelay(1000 / fps)
 	}
 }
 
 func SetDelay(ms int) {
-	t := fmt.Sprintf("%dms", ms)
-	d, err := time.ParseDuration(t)
-	if err == nil {
-		delay = d
-	}
+	codingame.SetDelay(ms)
 }
 
 func SetTimeout(seconds float64) {
-	dur, err := time.ParseDuration(fmt.Sprintf("%fs", seconds))
-	if err == nil {
-		timeout = dur
-	}
-}
-
-func InitializeCGReader() {
-	rand.Seed(time.Now().UTC().UnixNano())
-}
-
-// output
-
-type PrintfCallback func(format string, a ...interface{})
-
-var Printf PrintfCallback = func(format string, a ...interface{}) {
-	fmt.Printf(format, a...)
-}
-
-type PrintCallback func(text string)
-
-var Print PrintCallback = func(text string) {
-	Printf("%s", text)
-}
-
-type PrintlnCallback func(text string)
-
-var Println PrintCallback = func(text string) {
-	println(text)
+	codingame.SetTimeout(seconds)
 }
 
 func SetPrintfCallback(callback PrintfCallback) {
-	Printf = callback
+	codingame.SetPrintfCallback(codingame.PrintfCallback(callback))
 }
 
-// debug
+func SetResetProgramCallback(callback ProgramResetCallback) {
+	codingame.SetResetProgramCallback(codingame.ProgramResetCallback(callback))
+}
+
+// trace
 
 func Trace(msg string) {
-	Print(msg)
+	codingame.Print(msg)
 }
 
 func Traceln(msg string) {
-	Println(msg)
+	codingame.Println(msg)
 }
 
 func Tracef(format string, a ...interface{}) {
-	Printf("%s\n", fmt.Sprintf(format, a...))
+	codingame.Printf("%s", fmt.Sprintf(format, a...))
 }
 
 // help
@@ -93,295 +97,146 @@ func GetFileList(format string, n int) (files []string) {
 	return
 }
 
-// src
+// sandbox
 
-func GetManualInput(input string) <-chan string {
-	ch := make(chan string, buffer)
-	file, err := ioutil.ReadFile(input)
-	if err == nil {
-		lines := strings.Split(string(file), "\n")
-		go func() {
-			for _, line := range lines {
-				if line != "" {
-					ch <- line
-				}
-			}
-			close(ch)
-		}()
-	} else {
-		Printf("Error finding input file with name \"%s\"", input)
-		close(ch)
-	}
-	return ch
+func RunProgram(main SandboxProgramFunction) {
+	codingame.RunSandboxProgram(codingame.SandboxProgramFunction(main))
 }
 
-func TestOutput(test string, output []string) bool {
-	if len(output) == 0 {
-		return false
-	}
+// static
 
-	file, err := ioutil.ReadFile(test)
-	if err == nil {
-		test := strings.Split(string(file), "\n")
-
-		for i, line := range output {
-			if line != test[i] {
-				return false
-			}
-		}
-
-		return true
-	} else {
-		Printf("Error finding output file with name \"%s\"", test)
-	}
-	return false
+func RunStaticProgram(input, output string, trace bool, main ProgramMain) {
+	codingame.RunAndValidateManualProgram(input, output, trace, codingame.ProgramMain(main))
 }
 
-type ProgramMain func(<-chan string, chan string)
-
-func ReportResult(result bool, s float64) {
-	if result {
-		Printf("Your program finished in %fs and is correct! :)\n", s)
-	} else {
-		Printf("Your program finished in %fs and is incorrect. :(\n", s)
-	}
+func RunStaticPrograms(input, output []string, trace bool, main ProgramMain) {
+	codingame.RunAndValidateManualPrograms(input, output, trace, codingame.ProgramMain(main))
 }
 
-func CheckProgramConditions(t time.Time) float64 {
-	duration := time.Since(t)
-	if duration.Seconds() > timeout.Seconds() {
-		Printf("Your program timed out after %fs! :(\n", timeout.Seconds())
-	}
-	return duration.Seconds()
+// interactive
+
+type levelMissingFunction func(string)
+
+var ErrorUnknownLevel levelMissingFunction = func(level string) {
+	codingame.Printf("Error: The \"%s\" level is unkown and can not be excecuted. Please try again...\n", level)
 }
 
-type Function func()
-type Execute func(chan string)
-type Report func([]string, float64)
-
-func RunFunction(function Function) (result bool) {
-	ch := make(chan struct{})
-	start := time.Now()
-	go func() {
-		function()
-		close(ch)
-	}()
-
-	for {
-		select {
-		case <-ch:
-			result = true
-			return
-		default:
-			if CheckProgramConditions(start) > timeout.Seconds() {
-				result = false
-				return
-			}
-		}
-	}
-	return
+var ErrorLevelMissing levelMissingFunction = func(level string) {
+	codingame.Printf("Error: The \"%s\" level is not yet supported. Please try again later or implement it yourself @ GitHub...\n", level)
 }
 
-func RunProgram(execute Execute, report Report) bool {
-	ch := make(chan float64)
-	och := make(chan string, buffer)
-	exit := make(chan struct{})
-	error := make(chan struct{})
+func RunInteractiveProgram(programType, input string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	userInit := codingame.UserInitializeFunction(initialize)
+	userUpdate := codingame.UserUpdateFunction(update)
 
-	output := make([]string, 0)
-
-	start := time.Now()
-	go func() {
-		execute(och)
-		ch <- time.Since(start).Seconds()
-		close(ch)
-	}()
-
-	go func() {
-		for {
-			select {
-			case <-exit:
-				return
-			default:
-				if CheckProgramConditions(start) > timeout.Seconds() {
-					close(error)
-				}
-				time.Sleep(timeout)
-
-			}
-
-		}
-	}()
-
-	for active := true; active; {
-		select {
-		case <-error:
-			active = false
-		case line, ok := <-och:
-			if ok {
-				output = append(output, line)
-			} else {
-				active = false
-			}
-		}
-	}
-
-	close(exit)
-
-	select {
-	case t := <-ch:
-		report(output, t)
+	switch programType {
 	default:
-	}
-	return true
-}
+		ErrorUnknownLevel(programType)
 
-func IsAmountOfInputAndTestFilesEqual(input, test []string) bool {
-	if len(input) != len(test) {
-		Print("Make sure you give an equal amount of input files as the amount of test files.")
-		return false
-	}
-	return true
-}
+	case PT_RAGNAROK:
+		codingame.RunRagnarokProgram(input, trace, userInit, userUpdate)
 
-func RunManualProgram(input string, main ProgramMain) {
-	InitializeCGReader()
+	case PT_RAGNAROK_GIANTS:
+		codingame.RunRagnarokGiantsProgram(input, trace, userInit, userUpdate)
 
-	output := make(chan string, buffer)
-	exit := make(chan struct{})
+	case PT_KIRK:
+		codingame.RunKirkProgram(input, trace, userInit, userUpdate)
 
-	go func() {
-		main(GetManualInput(input), output)
-		close(output)
-		close(exit)
-	}()
+	case PS_KIRK_BRIDGE:
+		ErrorLevelMissing("Kirk Bridge")
 
-	for {
-		select {
-		case <-exit:
-			return
-		case line := <-output:
-			Printf("%s\n", line)
-		}
-	}
-}
+	case PT_SKYNET:
+		codingame.RunSkynetProgram(input, trace, userInit, userUpdate)
 
-func RunManualPrograms(input []string, main ProgramMain) {
-	for i := range input {
-		RunManualProgram(input[i], main)
-		Print("\n")
-	}
-}
+	case PT_SKYNET_FINAL_1:
+		ErrorLevelMissing("Skynet Final #1")
 
-func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain) bool {
-	InitializeCGReader()
+	case PT_SKYNET_FINAL_2:
+		ErrorLevelMissing("Skynet Final #2")
 
-	ch := GetManualInput(input)
-	var result bool
-	RunProgram(func(output chan string) {
-		main(ch, output)
-		close(output)
-	}, func(output []string, time float64) {
-		if echo {
-			for _, line := range output {
-				Printf("%s\n", line)
-			}
-		}
+	case PT_MARS_LANDER_1:
+		ErrorLevelMissing("Mars Lander #1")
 
-		result = TestOutput(test, output)
-		ReportResult(result, time)
-	})
-	return result
-}
+	case PT_MARS_LANDER_2:
+		ErrorLevelMissing("Mars Lander #2")
 
-func RunAndValidateManualPrograms(input, test []string, echo bool, main ProgramMain) {
-	if IsAmountOfInputAndTestFilesEqual(input, test) {
-		var counter int
-		for i := range input {
-			if RunAndValidateManualProgram(input[i], test[i], echo, main) {
-				counter++
-			}
-			Print("\n")
-		}
-		Printf("All programs finished. %d/%d programs succeeded\n", counter, len(input))
+	case PT_MARS_LANDER_3:
+		ErrorLevelMissing("Mars Lander #3")
+
+	case PT_INDIANA_1:
+		ErrorLevelMissing("Indiana #1")
+
+	case PT_INDIANA_2:
+		ErrorLevelMissing("Indiana #2")
+
+	case PT_INDIANA_3:
+		ErrorLevelMissing("Indiana #3")
+
+	case PT_KIRK_LABYRINTH:
+		ErrorLevelMissing("Kirk Labyrinth")
+
+	case PT_SHADOW_KNIGHT_1:
+		ErrorLevelMissing("Shadow of the Knight #1")
+
+	case PT_SHADOW_KNIGHT_2:
+		ErrorLevelMissing("Shadow of the Knight #2")
 	}
 }
 
-type TargetProgram interface {
-	ParseInitialData(<-chan string)
-	GetInput() chan string
-	Update(<-chan string, chan string)
-	SetOutput([]string) string
-	LoseConditionCheck() bool
-	WinConditionCheck() bool
-}
+func RunInteractivePrograms(programType string, input []string, trace bool, initialize UserInitializeFunction, update UserUpdateFunction) {
+	userInit := codingame.UserInitializeFunction(initialize)
+	userUpdate := codingame.UserUpdateFunction(update)
 
-func RunTargetProgram(input string, trace bool, program TargetProgram) {
-	InitializeCGReader()
+	switch programType {
+	default:
+		ErrorUnknownLevel(programType)
 
-	ch := GetManualInput(input)
+	case PT_RAGNAROK:
+		codingame.RunRagnarokPrograms(input, trace, userInit, userUpdate)
 
-	if RunFunction(func() { program.ParseInitialData(ch) }) {
-		for active := true; active; {
-			input := program.GetInput()
-			if RunProgram(func(output chan string) {
-				program.Update(input, output)
-				close(output)
-			}, func(output []string, duration float64) {
-				result := program.SetOutput(output)
+	case PT_RAGNAROK_GIANTS:
+		codingame.RunRagnarokGiantsPrograms(input, trace, userInit, userUpdate)
 
-				if trace {
-					for _, line := range output {
-						Printf("%s\n", line)
-					}
-					Printf("\n%s\n\n", result)
-				}
+	case PT_KIRK:
+		codingame.RunKirkPrograms(input, trace, userInit, userUpdate)
 
-				duration += duration
+	case PS_KIRK_BRIDGE:
+		ErrorLevelMissing("Kirk Bridge")
 
-				if program.WinConditionCheck() {
-					ReportResult(true, duration)
-					active = false
-				} else if program.LoseConditionCheck() {
-					ReportResult(false, duration)
-					active = false
-				}
+	case PT_SKYNET:
+		codingame.RunSkynetPrograms(input, trace, userInit, userUpdate)
 
-				time.Sleep(delay)
-			}) == false {
-				return
-			}
-		}
+	case PT_SKYNET_FINAL_1:
+		ErrorLevelMissing("Skynet Final #1")
+
+	case PT_SKYNET_FINAL_2:
+		ErrorLevelMissing("Skynet Final #2")
+
+	case PT_MARS_LANDER_1:
+		ErrorLevelMissing("Mars Lander #1")
+
+	case PT_MARS_LANDER_2:
+		ErrorLevelMissing("Mars Lander #2")
+
+	case PT_MARS_LANDER_3:
+		ErrorLevelMissing("Mars Lander #3")
+
+	case PT_INDIANA_1:
+		ErrorLevelMissing("Indiana #1")
+
+	case PT_INDIANA_2:
+		ErrorLevelMissing("Indiana #2")
+
+	case PT_INDIANA_3:
+		ErrorLevelMissing("Indiana #3")
+
+	case PT_KIRK_LABYRINTH:
+		ErrorLevelMissing("Kirk Labyrinth")
+
+	case PT_SHADOW_KNIGHT_1:
+		ErrorLevelMissing("Shadow of the Knight #1")
+
+	case PT_SHADOW_KNIGHT_2:
+		ErrorLevelMissing("Shadow of the Knight #2")
 	}
-}
-
-func RunTargetPrograms(input []string, trace bool, program TargetProgram) {
-	for i := range input {
-		RunTargetProgram(input[i], trace, program)
-		Printf("\n")
-	}
-}
-
-type MapObject interface {
-	GetMapCoordinates() string // returns string in format x;y
-	GetMapIcon() string        // return 1 character string
-}
-
-func DrawMap(width, height int, background string, objects ...MapObject) {
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			position := fmt.Sprintf("%d;%d", x, y)
-			c := background
-			for _, object := range objects {
-				pos := object.GetMapCoordinates()
-				if pos == position {
-					c = object.GetMapIcon()
-					break
-				}
-			}
-			Printf("%s ", c)
-		}
-		Print("\n")
-	}
-	Print("\n")
 }
