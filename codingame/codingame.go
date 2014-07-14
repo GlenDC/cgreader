@@ -28,7 +28,7 @@ func GetManualInput(input string) <-chan string {
 	return ch
 }
 
-func TestOutput(test string, output []string) bool {
+func TestOutput(test string, output []string, echo bool) bool {
 	if len(output) == 0 {
 		return false
 	}
@@ -40,6 +40,9 @@ func TestOutput(test string, output []string) bool {
 		for i, line := range output {
 			cleanedLine := re.ReplaceAllString(test[i], "")
 			if line != cleanedLine {
+				if echo == true {
+					Printf("Expected output: %s, provided output: %s\n", cleanedLine, line)
+				}
 				return false
 			}
 		}
@@ -225,13 +228,7 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 		main(ch, output)
 		close(output)
 	}, func(output []string, time float64) {
-		if echo {
-			for _, line := range output {
-				Println(line)
-			}
-		}
-
-		result = TestOutput(test, output)
+		result = TestOutput(test, output, echo)
 		ReportResult(result, time)
 	}) && result
 	return
