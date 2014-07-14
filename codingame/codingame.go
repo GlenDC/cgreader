@@ -3,6 +3,7 @@ package codingame
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -35,9 +36,10 @@ func TestOutput(test string, output []string) bool {
 	file, err := ioutil.ReadFile(test)
 	if err == nil {
 		test := strings.Split(string(file), "\n")
-
+		re := regexp.MustCompile("[^ -~]")
 		for i, line := range output {
-			if line != test[i] {
+			cleanedLine := re.ReplaceAllString(test[i], "")
+			if line != cleanedLine {
 				return false
 			}
 		}
