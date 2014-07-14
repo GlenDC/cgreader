@@ -40,13 +40,12 @@ func TestOutput(test string, output []string, echo bool) bool {
 		for i, line := range output {
 			cleanedLine := re.ReplaceAllString(test[i], "")
 			if line != cleanedLine {
-				if echo == true {
+				if echo {
 					Printf("Expected output: %s, provided output: %s\n", cleanedLine, line)
 				}
 				return false
 			}
 		}
-
 		return true
 	} else {
 		Printf("Error finding output file with name \"%s\"\n", test)
@@ -229,6 +228,13 @@ func RunAndValidateManualProgram(input, test string, echo bool, main ProgramMain
 		close(output)
 	}, func(output []string, time float64) {
 		result = TestOutput(test, output, echo)
+
+		if result {
+			for _, line := range output {
+				Println(line)
+			}
+		}
+
 		ReportResult(result, time)
 	}) && result
 	return
