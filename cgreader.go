@@ -2,7 +2,7 @@ package cgreader
 
 import (
 	"fmt"
-	"github.com/glendc/cgreader/codingame"
+	"github.com/nuclearcookie/cgreader/codingame"
 )
 
 // levels
